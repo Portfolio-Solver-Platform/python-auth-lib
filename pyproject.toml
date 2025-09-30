@@ -1,0 +1,19 @@
+[project]
+name = "psp-auth"
+version = "0.1.0"
+dependencies = [
+    "requests>=2.32.5,<3.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8,<9",
+    "pytest-cov>=7,<8",
+    "ruff>=0.13.2,<0.14.0",
+    "bandit>=1.7,<2.0",
+    "pip-audit>=2.7,<3.0",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]

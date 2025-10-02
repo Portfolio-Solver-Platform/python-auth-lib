@@ -6,3 +6,9 @@ class Token:
 
     def userinfo(self) -> any:
         return _token["userinfo"]
+
+    def has_role(role: str):
+        raise NotImplemented()
+
+    def has_permission(permission: str):
+        raise NotImplemented()

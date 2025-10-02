@@ -40,39 +40,21 @@ class Auth:
 
     async def get_token(self, request: Request) -> Token:
         """
-        Authorizes the token and returns it.
+        Authorizes the token locally and returns it.
         """
         return await self.client().authorize_access_token(request)
 
-    def client(self):
-        return oauth.create_client("psp")
-
-    def _update_endpoints(self):
-        response = requests.get(
-            self.config.well_known_endpoint, timeout=self.config.request_timeout
-        )
-        if response.status_code != 200:
-            logger.error("Failed to get .well-known")
-            return
-        self.endpoints.set_from_well_known(response.json())
-
-    def has_role(role: str):
+    async def get_verified_token(self, request: Request) -> Token:
+        """
+        Authorizes the token remotely to verify that it has not been revoked and returns it.
+        """
         raise NotImplemented()
+
+    def client(self):
+        return self.oauth.create_client("psp")
 
     def require_role(role: str):
         raise NotImplemented()
 
-    def has_permission(permission: str):
-        raise NotImplemented()
-
     def require_permission(permission: str):
-        raise NotImplemented()
-
-    def get_token():
-        raise NotImplemented()
-
-    def get_user_id():
-        raise NotImplemented()
-
-    def verify_token(token):
         raise NotImplemented()

@@ -2,6 +2,7 @@ from starlette.applications import Starlette
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.requests import Request
 from joserfc import jwt
+from joserfc.jwk import KeySet
 
 from .config import AuthConfig
 from .cache import CachedGetter
@@ -63,7 +64,7 @@ class Auth:
         Authorizes the token locally and returns it.
         """
         token = self.get_unverified_token(request)
-        key_set = jwt.KeySet.import_key_set(self.certs())
+        key_set = KeySet.import_key_set(self.certs())
         return jwt.decode(token, key_set)
 
     def get_unverified_token(self, request: Request):

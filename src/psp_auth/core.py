@@ -58,7 +58,7 @@ class Auth:
     def enable(self, app: Starlette, secret_key: str) -> None:
         app.add_middleware(SessionMiddleware, secret_key=secret_key)
 
-    async def get_token(self, request: Request) -> jwt.Token:
+    def get_token(self, request: Request) -> jwt.Token:
         """
         Authorizes the token locally and returns it.
         """
@@ -66,7 +66,7 @@ class Auth:
         key_set = jwt.KeySet.import_key_set(self.certs())
         return jwt.decode(token, key_set)
 
-    async def get_unverified_token(self, request: Request):
+    def get_unverified_token(self, request: Request):
         auth_header = request.headers.get("Authorization")
 
         if not auth_header:

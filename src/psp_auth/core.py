@@ -3,6 +3,7 @@ from starlette.middleware.sessions import SessionMiddleware
 from starlette.requests import Request
 from joserfc import jwt
 from joserfc.jwk import KeySet
+import requests
 
 from .config import AuthConfig
 from .cache import CachedGetter

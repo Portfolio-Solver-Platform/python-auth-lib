@@ -39,7 +39,9 @@ click==8.3.0
 coverage==7.10.7
     # via pytest-cov
 cryptography==46.0.2
-    # via authlib
+    # via
+    #   authlib
+    #   joserfc
 cyclonedx-python-lib==9.1.0
     # via pip-audit
 defusedxml==0.7.1
@@ -83,6 +85,8 @@ itsdangerous==2.2.0
     # via psp-auth (pyproject.toml)
 jinja2==3.1.6
     # via fastapi
+joserfc==1.3.4
+    # via psp-auth (pyproject.toml)
 license-expression==30.4.4
     # via cyclonedx-python-lib
 markdown-it-py==4.0.0

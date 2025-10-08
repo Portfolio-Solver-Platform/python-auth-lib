@@ -3,6 +3,7 @@ from starlette.middleware.sessions import SessionMiddleware
 from starlette.requests import Request
 from joserfc import jwt
 from joserfc.jwk import KeySet
+from joserfc.jwt import JWTClaimsRegistry
 import requests
 
 from .config import AuthConfig
@@ -28,7 +29,7 @@ class Auth:
     config: AuthConfig
     logger: any
     oauth: OAuth
-    _endpoints: CachedGetter
+    _endpoints: OidcEndpoints
     _certs: CachedGetter
 
     def __init__(self, config: AuthConfig | None = None, logger: any = None):
@@ -60,13 +61,18 @@ class Auth:
     def enable(self, app: Starlette, secret_key: str) -> None:
         app.add_middleware(SessionMiddleware, secret_key=secret_key)
 
-    def get_token(self, request: Request) -> jwt.Token:
+    def get_token(self, request: Request) -> Token:
         """
         Authorizes the token locally and returns it.
         """
         token = self.get_unverified_token(request)
         key_set = KeySet.import_key_set(self.certs())
-        return jwt.decode(token, key_set)
+        token = jwt.decode(token, key_set)
+        claims_requests = JWTClaimsRegistry(
+            iss={"essential": True, "value": self._endpoints.issuer()},
+        )
+        claims_requests.validate(token.claims)
+        return Token(token)
 
     def get_unverified_token(self, request: Request):
         auth_header = request.headers.get("Authorization")

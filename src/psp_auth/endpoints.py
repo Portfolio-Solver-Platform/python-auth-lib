@@ -26,6 +26,9 @@ class OidcEndpoints:
     def certs(self) -> dict:
         return self._metadata_response.get()["jwks_uri"]
 
+    def issuer(self) -> str:
+        return self._metadata_response.get()["issuer"]
+
     def set_from_well_known(self, well_known: any):
         self.token = well_known["token_endpoint"]
         self.introspection = well_known["introspection_endpoint"]

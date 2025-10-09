@@ -5,6 +5,8 @@ from fastapi import HTTPException
 from joserfc import jwt
 from joserfc.jwk import KeySet
 from joserfc.jwt import JWTClaimsRegistry
+from functools import wraps
+import inspect
 import requests
 
 from .config import AuthConfig
@@ -92,8 +94,46 @@ class Auth:
     def client(self):
         return self.oauth.create_client("psp")
 
-    def require_role(role: str):
-        raise NotImplemented()
+    def _get_request_from_func(func, *args, **kwargs) -> Request:
+        sig = inspect.signature(func)
+        bound_args = sig.bind(*args, **kwargs)
+        bound_args.apply_defaults()
 
-    def require_permission(permission: str):
-        raise NotImplemented()
+        request_arg_name = "request"
+        request = bound_args.arguments.get(request_arg_name)
+        if request is None:
+            raise ValueError(
+                f"There must be a Request object in the parameters called '{request_arg_name}'"
+            )
+        elif not isinstance(request, Request):
+            raise ValueError(f"The '{request_arg_name}' is not of type Request")
+
+        return request
+
+    def require_role(self, resource: str, role: str):
+        """
+        Decorator that requires that the access token has the given role on the given resource.
+        Requires that the function that it's decorated on has a Request object, named "request", as a parameter.
+
+        Args:
+            resource: The resource that the token should have a role for.
+            role: The role that the token should have.
+
+        Raises:
+            HTTPException: If they do not have the role, or something is wrong with the token.
+        """
+
+        def decorator(func):
+            @wraps(func)
+            def wrapper(*args, **kwargs):
+                request = Auth._get_request_from_func(func, *args, **kwargs)
+
+                token = self.get_token(request)
+                if not token.user().has_role(resource, role):
+                    raise HTTPException(status_code=403)
+
+                return func(*args, **kwargs)
+
+            return wrapper
+
+        return decorator

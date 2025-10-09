@@ -14,7 +14,7 @@ class Token:
     def issuer(self) -> str:
         return self.claims().get("iss")
 
-    def user(self) -> str:
+    def user(self) -> User:
         return User(self.claims())
 
     def expires_at(self) -> int:
@@ -68,7 +68,7 @@ class Token:
 class User:
     _claims: dict
 
-    def __init__(_claims: dict):
+    def __init__(self, _claims: dict):
         self._claims = _claims
 
     def id(self) -> str:

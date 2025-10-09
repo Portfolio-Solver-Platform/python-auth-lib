@@ -1,6 +1,7 @@
 from starlette.applications import Starlette
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.requests import Request
+from fastapi import HTTPException
 from joserfc import jwt
 from joserfc.jwk import KeySet
 from joserfc.jwt import JWTClaimsRegistry
@@ -74,7 +75,12 @@ class Auth:
         claims_requests.validate(token.claims)
         return Token(token)
 
-    def get_unverified_token(self, request: Request):
+    def get_unverified_token(self, request: Request) -> str:
+        """
+        Raises:
+        - If there is no authorization header, then it will raise a HTTPException.
+        - If the token has incorrect format, it will raise an HTTPException.
+        """
         auth_header = request.headers.get("Authorization")
 
         if not auth_header:
@@ -88,9 +94,9 @@ class Auth:
 
         return parts[1]
 
-    async def get_verified_token(self, request: Request) -> Token:
+    async def verify_token_remotely(self, token: Token):
         """
-        Authorizes the token remotely to verify that it has not been revoked and returns it.
+        Authorizes the token remotely to verify that it has not been revoked.
         """
         raise NotImplemented()
 

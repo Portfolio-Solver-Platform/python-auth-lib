@@ -5,7 +5,7 @@ from dataclasses import dataclass
 class Token:
     _token: jwt.Token
 
-    def __init__(_token: jwt.Token):
+    def __init__(self, _token: jwt.Token):
         self._token = _token
 
     def claims(self) -> dict:

@@ -125,14 +125,14 @@ class Auth:
 
         def decorator(func):
             @wraps(func)
-            def wrapper(*args, **kwargs):
+            async def wrapper(*args, **kwargs):
                 request = Auth._get_request_from_func(func, *args, **kwargs)
 
                 token = self.get_token(request)
                 if not token.user().has_role(resource, role):
                     raise HTTPException(status_code=403)
 
-                return func(*args, **kwargs)
+                return await func(*args, **kwargs)
 
             return wrapper
 

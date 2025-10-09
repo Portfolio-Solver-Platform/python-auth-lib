@@ -31,31 +31,29 @@ class User:
         """
         return self._claims["preferred_username"]
 
-    def has_role(self, role: tuple[str, str]) -> bool:
-        client, role = role
-        if client == "global":
-            return self.has_global_role(role)
-        return self.has_client_role(client, role)
+    def has_role(self, resource: str, role: str) -> bool:
+        """
+        Returns whether the user has the given role on the given resource.
+        If resource == "global", then it will check for global roles.
+        """
+        if resource == "global":
+            return self._has_global_role(role)
 
-    def has_any_role(self, roles: list[tuple[str, str]]) -> bool:
-        return any(self.has_role(role) for role in roles)
+        access = self._claims.get("resource_access")
+        if access is None:
+            return False
 
-    def has_all_roles(self, roles: list[tuple[str, str]]) -> bool:
-        return all(self.has_role(role) for role in roles)
-
-    def has_global_role(self, role: str) -> bool:
-        return role in self._claims["realm_access"]["roles"]
-
-    def has_client_role(self, client: str, role: str) -> bool:
-        resource_access = self._claims.get("resource_access")
+        resource_access = access.get(resource)
         if resource_access is None:
             return False
 
-        client_access = resource_access.get(client)
-        if client_access is None:
-            return False
+        return role in resource_access["roles"]
 
-        return role in client_access["roles"]
+    def has_any_role(self, resource: str, roles: list[str]) -> bool:
+        return any(self.has_role(resource, role) for role in roles)
 
-    def has_permission(self) -> bool:
-        raise NotImplemented()
+    def has_all_roles(self, resource: str, roles: list[str]) -> bool:
+        return all(self.has_role(resource, role) for role in roles)
+
+    def _has_global_role(self, role: str) -> bool:
+        return role in self._claims["realm_access"]["roles"]

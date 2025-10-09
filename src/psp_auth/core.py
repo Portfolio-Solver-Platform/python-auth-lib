@@ -16,12 +16,6 @@ from .token import Token
 from authlib.integrations.starlette_client import OAuth
 
 
-def get_signing_cert(url: str) -> dict:
-    certs = requests.get(url).json()
-    signing_certs = filter(lambda key: key.use == "sig", certs["keys"])
-    return signing_certs[0]
-
-
 class Auth:
     """
     Implements authentication and authorisation.
@@ -35,14 +29,12 @@ class Auth:
 
     def __init__(self, config: AuthConfig | None = None, logger: any = None):
         """
-        If config is None, then it uses a default configuration.
+        Args:
+            config: The auth configuration. If it is None, it uses a default configuration.
         """
         self.config = config if config is not None else AuthConfig()
         self.logger = logger if logger is not None else PrintLogger()
         self._endpoints = OidcEndpoints(self.config.well_known_endpoint)
-        self._signing_cert = CachedGetter(
-            lambda: get_signing_cert(self._endpoints.signing_cert()), 60 * 60
-        )
 
         self.oauth = OAuth()
         self.oauth.register(
@@ -55,9 +47,6 @@ class Auth:
 
     def certs(self) -> dict:
         return requests.get(self._endpoints.certs()).json()
-
-    def signing_cert(self) -> dict:
-        return self._signing_cert.get()
 
     def enable(self, app: Starlette, secret_key: str) -> None:
         app.add_middleware(SessionMiddleware, secret_key=secret_key)

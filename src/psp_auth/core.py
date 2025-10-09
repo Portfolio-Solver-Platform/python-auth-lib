@@ -6,7 +6,6 @@ from joserfc import jwt
 from joserfc.jwk import KeySet
 from joserfc.jwt import JWTClaimsRegistry
 from functools import wraps
-import inspect
 import requests
 
 from .config import AuthConfig
@@ -95,12 +94,8 @@ class Auth:
         return self.oauth.create_client("psp")
 
     def _get_request_from_func(func, *args, **kwargs) -> Request:
-        sig = inspect.signature(func)
-        bound_args = sig.bind(*args, **kwargs)
-        bound_args.apply_defaults()
-
         request_arg_name = "request"
-        request = bound_args.arguments.get(request_arg_name)
+        request = kwargs.get(request_arg_name)
         if request is None:
             raise ValueError(
                 f"There must be a Request object in the parameters called '{request_arg_name}'"

@@ -105,6 +105,55 @@ class Auth:
 
         return request
 
+    def _token_decorator(self, action: Callable[[Token], None]):
+        def decorator(func):
+            @wraps(func)
+            async def wrapper(*args, **kwargs):
+                request = Auth._get_request_from_func(func, *args, **kwargs)
+
+                token = self.get_token(request)
+                action(token)
+
+                return await func(*args, **kwargs)
+
+            return wrapper
+
+        return decorator
+
+    def require_any_role(self, resource: str, roles: list[str]):
+        """
+        Decorator that requires that the access token has one of the given roles on the given resource.
+        Requires that the function that it's decorated on has a Request object, named "request", as a parameter.
+
+        Args:
+            resource: The resource that the token should have a role for.
+            roles: The roles that the token should have one of.
+
+        Raises:
+            HTTPException: If they do not have the role, or something is wrong with the token.
+        """
+
+        def check(token) -> None:
+            if not token.user().has_any_role(resource, roles):
+                raise HTTPException(status_code=403)
+
+        return self._token_decorator(check)
+
+        def decorator(func):
+            @wraps(func)
+            async def wrapper(*args, **kwargs):
+                request = Auth._get_request_from_func(func, *args, **kwargs)
+
+                token = self.get_token(request)
+                if not token.user().has_any_role(resource, roles):
+                    raise HTTPException(status_code=403)
+
+                return await func(*args, **kwargs)
+
+            return wrapper
+
+        return decorator
+
     def require_role(self, resource: str, role: str):
         """
         Decorator that requires that the access token has the given role on the given resource.
@@ -118,17 +167,4 @@ class Auth:
             HTTPException: If they do not have the role, or something is wrong with the token.
         """
 
-        def decorator(func):
-            @wraps(func)
-            async def wrapper(*args, **kwargs):
-                request = Auth._get_request_from_func(func, *args, **kwargs)
-
-                token = self.get_token(request)
-                if not token.user().has_role(resource, role):
-                    raise HTTPException(status_code=403)
-
-                return await func(*args, **kwargs)
-
-            return wrapper
-
-        return decorator
+        return self.require_any_role(resource, [role])

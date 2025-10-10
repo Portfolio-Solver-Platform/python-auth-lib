@@ -1,5 +1,4 @@
 from joserfc import jwt
-from dataclasses import dataclass
 from .user import User
 
 

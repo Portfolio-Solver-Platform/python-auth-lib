@@ -1,5 +1,3 @@
-from starlette.applications import Starlette
-from starlette.middleware.sessions import SessionMiddleware
 from starlette.requests import Request
 from fastapi import HTTPException
 from joserfc import jwt
@@ -33,13 +31,17 @@ class Auth:
         """
         self.config = config
         self.logger = logger if logger is not None else PrintLogger()
-        self._endpoints = OidcEndpoints(self.config.well_known_endpoint)
+        self._endpoints = OidcEndpoints(
+            self.config.well_known_endpoint, self.config.request_timeout
+        )
 
     def _resource(self) -> str:
         return self.config.client_id
 
     def certs(self) -> dict:
-        return requests.get(self._endpoints.certs()).json()
+        return requests.get(
+            self._endpoints.certs(), timeout=self.config.request_timeout
+        ).json()
 
     def get_token(self, request: Request) -> Token:
         """
@@ -77,7 +79,7 @@ class Auth:
         """
         Authorizes the token remotely to verify that it has not been revoked.
         """
-        raise NotImplemented()
+        raise NotImplementedError()
 
     def _get_request_from_func(func, *args, **kwargs) -> Request:
         request_arg_name = "request"
@@ -129,7 +131,7 @@ class Auth:
         """
 
         def check(token: Token) -> None:
-            if not token.user().has_role(roles):
+            if not token.user().has_role(role):
                 raise HTTPException(status_code=403)
 
         return self._token_decorator(check)

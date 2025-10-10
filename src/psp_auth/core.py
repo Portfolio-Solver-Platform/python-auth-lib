@@ -41,9 +41,6 @@ class Auth:
     def certs(self) -> dict:
         return requests.get(self._endpoints.certs()).json()
 
-    def enable(self, app: Starlette, secret_key: str) -> None:
-        app.add_middleware(SessionMiddleware, secret_key=secret_key)
-
     def get_token(self, request: Request) -> Token:
         """
         Authorizes the token locally and returns it.

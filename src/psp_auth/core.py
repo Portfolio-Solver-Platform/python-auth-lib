@@ -107,6 +107,16 @@ class Auth:
         return request
 
     def _token_decorator(self, action: Callable[[Token], None]):
+        """
+        A helper for creating decorators that require a valid `Token`.
+        It validates the token before passing it to `action`.
+
+        Requires that the function that it's decorated on has a Request object, named "request", as a parameter.
+
+        Returns:
+            A decorator that performs the given `action` on the token in the request.
+        """
+
         def decorator(func):
             @wraps(func)
             async def wrapper(*args, **kwargs):
@@ -131,7 +141,7 @@ class Auth:
             roles: The roles that the token should have one of.
 
         Raises:
-            HTTPException: If they do not have the role, or something is wrong with the token.
+            HTTPException: If they do not have one of the roles, or something is wrong with the token.
         """
 
         def check(token) -> None:
@@ -139,21 +149,6 @@ class Auth:
                 raise HTTPException(status_code=403)
 
         return self._token_decorator(check)
-
-        def decorator(func):
-            @wraps(func)
-            async def wrapper(*args, **kwargs):
-                request = Auth._get_request_from_func(func, *args, **kwargs)
-
-                token = self.get_token(request)
-                if not token.user().has_any_role(resource, roles):
-                    raise HTTPException(status_code=403)
-
-                return await func(*args, **kwargs)
-
-            return wrapper
-
-        return decorator
 
     def require_role(self, resource: str, role: str):
         """
@@ -169,3 +164,22 @@ class Auth:
         """
 
         return self.require_any_role(resource, [role])
+
+    def require_all_roles(self, resource: str, roles: list[str]):
+        """
+        Decorator that requires that the access token has all of the given roles on the given resource.
+        Requires that the function that it's decorated on has a Request object, named "request", as a parameter.
+
+        Args:
+            resource: The resource that the token should have roles for.
+            roles: The roles that the token should have.
+
+        Raises:
+            HTTPException: If they do not have the roles, or something is wrong with the token.
+        """
+
+        def check(token) -> None:
+            if not token.user().has_all_roles(resource, roles):
+                raise HTTPException(status_code=403)
+
+        return self._token_decorator(check)

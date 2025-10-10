@@ -27,5 +27,4 @@ def client(app):
 def app(auth):
     """Test app"""
     app = FastAPI()
-    auth.enable(app, "secret-key")
     yield app

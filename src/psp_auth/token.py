@@ -5,9 +5,11 @@ from .user import User
 
 class Token:
     _token: jwt.Token
+    _resource: str
 
-    def __init__(self, _token: jwt.Token):
+    def __init__(self, _token: jwt.Token, _resource: str):
         self._token = _token
+        self._resource = _resource
 
     def claims(self) -> dict:
         return self._token.claims
@@ -16,7 +18,7 @@ class Token:
         return self.claims().get("iss")
 
     def user(self) -> User:
-        return User(self.claims())
+        return User(self.claims(), self._resource)
 
     def expires_at(self) -> int:
         return self.claims()["exp"]

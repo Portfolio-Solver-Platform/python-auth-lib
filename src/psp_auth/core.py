@@ -47,6 +47,9 @@ class Auth:
             client_kwargs={"scope": "openid email profile"},
         )
 
+    def _resource(self) -> str:
+        return self.config.client_id
+
     def certs(self) -> dict:
         return requests.get(self._endpoints.certs()).json()
 
@@ -64,7 +67,7 @@ class Auth:
             iss={"essential": True, "value": self._endpoints.issuer()},
         )
         claims_requests.validate(token.claims)
-        return Token(token)
+        return Token(token, self._resource())
 
     def get_unverified_token(self, request: Request) -> str:
         """
@@ -131,32 +134,86 @@ class Auth:
 
         return decorator
 
-    def require_any_role(self, resource: str, roles: list[str]):
+    def require_role(self, role: str):
         """
-        Decorator that requires that the access token has one of the given roles on the given resource.
+        Decorator that requires that the access token has the `role`.
         Requires that the function that it's decorated on has a Request object, named "request", as a parameter.
 
         Args:
-            resource: The resource that the token should have a role for.
+            role: The role that the token should have.
+
+        Raises:
+            HTTPException: If they do not have the `role`, or something is wrong with the token.
+        """
+
+        def check(token: Token) -> None:
+            if not token.user().has_role(roles):
+                raise HTTPException(status_code=403)
+
+        return self._token_decorator(check)
+
+    def require_any_role(self, roles: list[str]):
+        """
+        Decorator that requires that the access token has one of the `roles`.
+        Requires that the function that it's decorated on has a Request object, named "request", as a parameter.
+
+        Args:
             roles: The roles that the token should have one of.
 
         Raises:
             HTTPException: If they do not have one of the roles, or something is wrong with the token.
         """
 
-        def check(token) -> None:
-            if not token.user().has_any_role(resource, roles):
+        def check(token: Token) -> None:
+            if not token.user().has_any_role(roles):
                 raise HTTPException(status_code=403)
 
         return self._token_decorator(check)
 
-    def require_role(self, resource: str, role: str):
+    def require_all_roles(self, roles: list[str]):
+        """
+        Decorator that requires that the access token has all of the `roles`.
+        Requires that the function that it's decorated on has a Request object, named "request", as a parameter.
+
+        Args:
+            roles: The roles that the token should have.
+
+        Raises:
+            HTTPException: If they do not have the roles, or something is wrong with the token.
+        """
+
+        def check(token: Token) -> None:
+            if not token.user().has_all_roles(roles):
+                raise HTTPException(status_code=403)
+
+        return self._token_decorator(check)
+
+    def require_any_resource_role(self, resource: str, roles: list[str]):
+        """
+        Decorator that requires that the access token has one of the given roles on the given resource.
+        Requires that the function that it's decorated on has a Request object, named "request", as a parameter.
+
+        Args:
+            resource: The resource that the token should have a role for. If `resource == "global"`, then it will check for global roles.
+            roles: The roles that the token should have one of.
+
+        Raises:
+            HTTPException: If they do not have one of the roles, or something is wrong with the token.
+        """
+
+        def check(token: Token) -> None:
+            if not token.user().has_any_resource_role(resource, roles):
+                raise HTTPException(status_code=403)
+
+        return self._token_decorator(check)
+
+    def require_resource_role(self, resource: str, role: str):
         """
         Decorator that requires that the access token has the given role on the given resource.
         Requires that the function that it's decorated on has a Request object, named "request", as a parameter.
 
         Args:
-            resource: The resource that the token should have a role for.
+            resource: The resource that the token should have a role for. If `resource == "global"`, then it will check for global roles.
             role: The role that the token should have.
 
         Raises:
@@ -165,20 +222,20 @@ class Auth:
 
         return self.require_any_role(resource, [role])
 
-    def require_all_roles(self, resource: str, roles: list[str]):
+    def require_all_resource_roles(self, resource: str, roles: list[str]):
         """
         Decorator that requires that the access token has all of the given roles on the given resource.
         Requires that the function that it's decorated on has a Request object, named "request", as a parameter.
 
         Args:
-            resource: The resource that the token should have roles for.
+            resource: The resource that the token should have roles for. If `resource == "global"`, then it will check for global roles.
             roles: The roles that the token should have.
 
         Raises:
             HTTPException: If they do not have the roles, or something is wrong with the token.
         """
 
-        def check(token) -> None:
+        def check(token: Token) -> None:
             if not token.user().has_all_roles(resource, roles):
                 raise HTTPException(status_code=403)
 

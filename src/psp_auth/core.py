@@ -15,8 +15,6 @@ from .endpoints import OidcEndpoints
 from .logging import PrintLogger
 from .token import Token
 
-from authlib.integrations.starlette_client import OAuth
-
 
 class Auth:
     """
@@ -25,7 +23,6 @@ class Auth:
 
     config: AuthConfig
     logger: any
-    oauth: OAuth
     _endpoints: OidcEndpoints
     _certs: CachedGetter
 
@@ -37,15 +34,6 @@ class Auth:
         self.config = config
         self.logger = logger if logger is not None else PrintLogger()
         self._endpoints = OidcEndpoints(self.config.well_known_endpoint)
-
-        self.oauth = OAuth()
-        self.oauth.register(
-            name=self.config._client_name,
-            client_id=self.config.client_id,
-            client_secret=self.config.client_secret,
-            server_metadata_url=self.config.well_known_endpoint,
-            client_kwargs={"scope": "openid email profile"},
-        )
 
     def _resource(self) -> str:
         return self.config.client_id
@@ -93,9 +81,6 @@ class Auth:
         Authorizes the token remotely to verify that it has not been revoked.
         """
         raise NotImplemented()
-
-    def client(self):
-        return self.oauth.create_client("psp")
 
     def _get_request_from_func(func, *args, **kwargs) -> Request:
         request_arg_name = "request"

@@ -6,6 +6,7 @@ from joserfc import jwt
 from joserfc.jwk import KeySet
 from joserfc.jwt import JWTClaimsRegistry
 from functools import wraps
+from typing import Callable
 import requests
 
 from .config import AuthConfig

@@ -6,7 +6,6 @@ build-backend = "setuptools.build_meta"
 name = "psp-auth"
 version = "0.1.0"
 dependencies = [
-    "authlib>=1.6.4,<2.0",
     "joserfc>=1.3.4,<2.0",
     "fastapi[standard]>=0.117.1,<0.118",
     "starlette>=0.48.0,<0.49.0",

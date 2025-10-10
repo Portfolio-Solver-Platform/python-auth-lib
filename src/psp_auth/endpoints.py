@@ -2,8 +2,8 @@ from .cache import CachedGetter
 import requests
 
 
-def _request_metadata(url: str) -> dict:
-    response = requests.get(url)
+def _request_metadata(url: str, timeout: tuple[int, int]) -> dict:
+    response = requests.get(url, timeout=timeout)
     return response.json()
 
 
@@ -15,9 +15,9 @@ class OidcEndpoints:
     end_session: str
     jwks_uri: str
 
-    def __init__(self, server_metadata_url: str):
+    def __init__(self, server_metadata_url: str, request_timeout: tuple[int, int]):
         self._metadata_response = CachedGetter(
-            lambda: _request_metadata(server_metadata_url), 60 * 60
+            lambda: _request_metadata(server_metadata_url, request_timeout), 60 * 60
         )
 
     def update(self):

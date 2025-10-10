@@ -29,12 +29,12 @@ class Auth:
     _endpoints: OidcEndpoints
     _certs: CachedGetter
 
-    def __init__(self, config: AuthConfig | None = None, logger: any = None):
+    def __init__(self, config: AuthConfig, logger: any = None):
         """
         Args:
-            config: The auth configuration. If it is None, it uses a default configuration.
+            config: The auth configuration.
         """
-        self.config = config if config is not None else AuthConfig()
+        self.config = config
         self.logger = logger if logger is not None else PrintLogger()
         self._endpoints = OidcEndpoints(self.config.well_known_endpoint)
 

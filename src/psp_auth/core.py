@@ -43,11 +43,10 @@ class Auth:
             self._endpoints.certs(), timeout=self.config.request_timeout
         ).json()
 
-    def get_token(self, request: Request) -> Token:
+    def validate_token(self, token: str) -> Token:
         """
         Authorizes the token locally and returns it.
         """
-        token = self.get_unverified_token(request)
         key_set = KeySet.import_key_set(self.certs())
         token = jwt.decode(token, key_set)
         claims_requests = JWTClaimsRegistry(
@@ -56,17 +55,11 @@ class Auth:
         claims_requests.validate(token.claims)
         return Token(token, self._resource())
 
-    def get_unverified_token(self, request: Request) -> str:
+    def get_token(self, auth_header: str) -> str:
         """
         Raises:
-        - If there is no authorization header, then it will raise a HTTPException.
-        - If the token has incorrect format, it will raise an HTTPException.
+        - If `auth_header` has incorrect format, it will raise an HTTPException.
         """
-        auth_header = request.headers.get("Authorization")
-
-        if not auth_header:
-            raise HTTPException(status_code=401, detail="Missing Authorization header")
-
         # Extract token from "Bearer <token>"
         parts = auth_header.split()
 
@@ -75,7 +68,7 @@ class Auth:
 
         return parts[1]
 
-    async def verify_token_remotely(self, token: Token):
+    async def validate_token_remotely(self, token: Token):
         """
         Authorizes the token remotely to verify that it has not been revoked.
         """

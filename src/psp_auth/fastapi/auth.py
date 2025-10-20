@@ -1,5 +1,6 @@
 from typing import Annotated
-from fastapi import Request, Depends, HTTPException
+from fastapi import Request, Depends, HTTPException, Security
+from fastapi.security import SecurityScopes
 from ..core import Auth
 from ..token import Token
 from ..user import User
@@ -25,9 +26,11 @@ class FastAPIAuth:
 
         return decorator
 
-    def require_role(self, role: str):
-        def decorator(user: Annotated[User, Depends(self.user())]):
-            if not user.has_role(role):
+    def require_roles(self, roles: list[str]):
+        def decorator(
+            security_scopes: SecurityScopes, user: Annotated[User, Depends(self.user())]
+        ):
+            if not user.has_all_roles(security_scopes.scopes):
                 raise HTTPException(status_code=403)
 
-        return decorator
+        return Security(decorator, scopes=roles)

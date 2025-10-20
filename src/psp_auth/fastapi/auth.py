@@ -1,5 +1,5 @@
 from typing import Annotated
-from fastapi import Request, Depends
+from fastapi import Request, Depends, HTTPException
 from ..core import Auth
 from ..token import Token
 from ..user import User

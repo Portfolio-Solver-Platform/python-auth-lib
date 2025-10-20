@@ -1,9 +1,12 @@
 from typing import Annotated
 from fastapi import Request, Depends, HTTPException, Security
 from fastapi.security import SecurityScopes
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from ..core import Auth
 from ..token import Token
 from ..user import User
+
+_security = HTTPBearer(description="Access token")
 
 
 class FastAPIAuth:
@@ -13,10 +16,10 @@ class FastAPIAuth:
         self._auth = auth
 
     def token(self):
-        def decorator(request: Request) -> Token:
-            auth_header = request.headers.get("Authorization")
-            token = self._auth.get_token(auth_header)
-            return self._auth.validate_token(token)
+        def decorator(
+            credentials: Annotated[HTTPAuthorizationCredentials, Security(security)],
+        ) -> Token:
+            return self._auth.validate_token(credentials.credentials)
 
         return decorator
 

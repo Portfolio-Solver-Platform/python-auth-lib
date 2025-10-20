@@ -27,7 +27,7 @@ class FastAPIAuth:
 
     def require_role(self, role: str):
         def decorator(user: Annotated[User, Depends(self.user())]):
-            if not token.user().has_role(role):
+            if not user.has_role(role):
                 raise HTTPException(status_code=403)
 
         return decorator

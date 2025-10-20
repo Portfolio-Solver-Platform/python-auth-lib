@@ -23,7 +23,7 @@ class FastAPIAuth:
         def decorator(token: Annotated[Token, Depends(self.token())]) -> User:
             return token.user()
 
-        raise decorator
+        return decorator
 
     def require_role(self, role: str):
         def decorator(user: Annotated[User, Depends(self.user())]):

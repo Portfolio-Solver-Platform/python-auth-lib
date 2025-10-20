@@ -17,7 +17,7 @@ class FastAPIAuth:
 
     def token(self):
         def decorator(
-            credentials: Annotated[HTTPAuthorizationCredentials, Security(security)],
+            credentials: Annotated[HTTPAuthorizationCredentials, Security(_security)],
         ) -> Token:
             return self._auth.validate_token(credentials.credentials)
 

@@ -34,7 +34,7 @@ class FastAPIAuth:
 
             schema = original_schema
             schema["components"]["securitySchemes"] = {
-                "BearerAuth": {
+                _SECURITY_SCHEME_NAME: {
                     "type": "http",
                     "scheme": "bearer",
                     "bearerFormat": "jwt",
@@ -47,7 +47,7 @@ class FastAPIAuth:
 
         app.openapi = custom_openapi
 
-    def scope_docs(scopes: list[str]):
+    def scope_docs(self, scopes: list[str]):
         return ({"security": [{_SECURITY_SCHEME_NAME: scopes}]},)
 
     def token(self):

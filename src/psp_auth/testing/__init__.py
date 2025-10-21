@@ -2,6 +2,20 @@ from psp_auth.core import Auth
 from joserfc import jwt
 from joserfc.jwk import RSAKey, KeyParameters
 import time
+import pytest
+from dataclasses import dataclass
+
+
+@dataclass
+class TestUser:
+    id: str = "testuserid"
+    given_name: str = "John"
+    family_name: str = "Doe"
+    username: str = "jandoener123"
+
+    @property
+    def full_name(self) -> str:
+        return f"{self.given_name} + {self.family_name}"
 
 
 def _generate_private_key() -> RSAKey:
@@ -14,12 +28,13 @@ def _public_certs_from_key(key: RSAKey) -> dict:
 
 
 class TestAuth:
-    def __init__(self, issuer: str | None = None):
+    def __init__(self, monkeypatch, issuer: str | None = None):
         self._issuer = issuer if issuer is not None else "psp-auth-testing"
         self._private_key = _generate_private_key()
         self._public_certs = _public_certs_from_key(self._private_key)
+        self._mock_auth(monkeypatch)
 
-    def mock_auth(self, auth: Auth, monkeypatch) -> None:
+    def _mock_auth(self, monkeypatch) -> None:
         public_certs = self._public_certs
         issuer = self._issuer
 
@@ -37,13 +52,13 @@ class TestAuth:
     def auth_header(self, token: str) -> dict:
         return {"Authorization": f"Bearer {token}"}
 
-    def gen_token(self, given_name: str = "John", family_name: str = "Doe"):
+    def gen_token(self, user: TestUser = TestUser(), token_id: str = "testtokenid"):
         claims = {
             "iss": self._issuer,
-            "sub": "user123",
-            "name": f"{given_name} {family_name}",
-            "given_name": given_name,
-            "family_name": family_name,
+            "sub": user.id,
+            "name": user.full_name,
+            "given_name": user.given_name,
+            "family_name": user.family_name,
             "iat": int(time.time()),
             "exp": int(time.time()) + 3600,  # expires in 1 hour
         }

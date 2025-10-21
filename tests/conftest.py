@@ -15,8 +15,7 @@ def auth(auth_base):
 
 @pytest.fixture
 def tauth(auth_base, monkeypatch):
-    test_auth = TestAuth()
-    test_auth.mock_auth(auth_base, monkeypatch)
+    test_auth = TestAuth(monkeypatch)
     yield test_auth
 
 

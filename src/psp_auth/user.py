@@ -6,27 +6,35 @@ class User:
         self._claims = _claims
         self._resource = _resource
 
+    @property
     def id(self) -> str:
         return self._claims["sub"]
 
+    @property
     def principal_name(self) -> str:
         return self._claims["upn"]
 
+    @property
     def email(self) -> str | None:
         return self._claims.get("email")
 
+    @property
     def is_email_verified(self) -> bool | None:
         return self._claims.get("email_verified")
 
+    @property
     def given_name(self) -> str | None:
         return self._claims.get("given_name")
 
+    @property
     def family_name(self) -> str | None:
         return self._claims.get("family_name")
 
+    @property
     def full_name(self) -> str | None:
         return self._claims.get("name")
 
+    @property
     def username(self) -> str:
         """
         WARNING: Should _not_ be used as an identifier since it may change. Use `User.id` instead.

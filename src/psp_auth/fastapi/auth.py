@@ -6,11 +6,7 @@ from ..core import Auth
 from ..token import Token
 from ..user import User
 
-_security = HTTPBearer(bearerFormat="JWT", description="Access token")
-
-# TODO: Stop using HTTPBearer, and replace with previous implementation of using Auth class.
-
-_SECURITY_SCHEME_NAME = "HTTPBearer"
+_SECURITY_SCHEME_NAME = "AccessTokenBearer"
 
 
 class FastAPIAuth:
@@ -50,11 +46,23 @@ class FastAPIAuth:
     def scope_docs(self, scopes: list[str]):
         return {"security": [{_SECURITY_SCHEME_NAME: scopes}]}
 
+    def unvalidated_token(self):
+        """
+        Dependency for the unvalidated token.
+        Generally, you should use the validated token instead with the `FastAPIAuth.token` dependency instead.
+        """
+
+        def dependency(request: Request) -> str:
+            auth_header = request.headers.get("Authorization")
+            token = self._auth.get_token(auth_header)
+
+        return dependency
+
     def token(self):
         def decorator(
-            credentials: Annotated[HTTPAuthorizationCredentials, Security(_security)],
+            token: Annotated[str, Depends(self.unvalidated_token())],
         ) -> Token:
-            return self._auth.validate_token(credentials.credentials)
+            return self._auth.validate_token(token)
 
         return decorator
 

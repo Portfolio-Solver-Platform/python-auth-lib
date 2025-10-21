@@ -48,7 +48,7 @@ class FastAPIAuth:
         app.openapi = custom_openapi
 
     def scope_docs(self, scopes: list[str]):
-        return ({"security": [{_SECURITY_SCHEME_NAME: scopes}]},)
+        return {"security": [{_SECURITY_SCHEME_NAME: scopes}]}
 
     def token(self):
         def decorator(

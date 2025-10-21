@@ -16,11 +16,13 @@ _SECURITY_SCHEME_NAME = "HTTPBearer"
 class FastAPIAuth:
     _auth: Auth
 
-    def __init__(self, auth: Auth, app: FastAPI):
+    def __init__(self, auth: Auth):
         self._auth = auth
-        self._fix_openapi(app)
 
-    def _fix_openapi(app: FastAPI):
+    def add_docs(self, app: FastAPI):
+        """
+        Adds the authentication scheme to the `app` openapi documentation.
+        """
         original_schema = app.openapi()
         schema_set = False
 

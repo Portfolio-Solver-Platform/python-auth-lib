@@ -23,7 +23,6 @@ class FastAPIAuth:
         schema_set = False
 
         def custom_openapi():
-            global schema_set
             if schema_set:
                 return app.openapi_schema
             schema_set = True
@@ -34,7 +33,7 @@ class FastAPIAuth:
                     "type": "http",
                     "scheme": "bearer",
                     "bearerFormat": "jwt",
-                    "description": "JWT access token",
+                    "description": "JWT access token in the Authorization bearer format",
                 }
             }
 
@@ -51,6 +50,9 @@ class FastAPIAuth:
         Dependency for the unvalidated token.
         Generally, you should use the validated token instead with the `FastAPIAuth.token` dependency instead.
         """
+        # Note that it is named "unvalidated" instead of "invalidated" because
+        # "invalid" means that it has been valid before, and became invalid.
+        # "unvalid" instead means that it hasn't been checked whether it is valid.
 
         def dependency(request: Request) -> str:
             auth_header = request.headers.get("Authorization")

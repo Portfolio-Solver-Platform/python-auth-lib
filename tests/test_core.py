@@ -2,28 +2,27 @@ from starlette.requests import Request
 from typing import Annotated
 from fastapi import Depends
 from psp_auth import Token
-from tests.auth import auth_header, gen_token
 
 
 def test_add_docs(client, app, auth):
     assert True
 
 
-def test_unvalid_token(client, app, auth):
+def test_unvalid_token(client, app, auth, tauth):
     token_value = "hellothere"
 
     @app.get("/")
-    async def get_token(token: Annotated[Token, Depends(auth.unvalidated_token())]):
+    async def get_token(token: Annotated[str, Depends(auth.unvalidated_token())]):
         assert token is not None
         assert token == token_value
         return "ok"
 
-    response = client.get("/", headers=auth_header(token_value))
+    response = client.get("/", headers=tauth.auth_header(token_value))
     assert response.status_code == 200
 
 
-def test_token(client, app, auth):
-    token_value = gen_token()
+def test_token(client, app, auth, tauth):
+    token_value = tauth.gen_token()
 
     @app.get("/")
     async def get_token(token: Annotated[Token, Depends(auth.token())]):
@@ -31,7 +30,7 @@ def test_token(client, app, auth):
         assert token.issuer() == "psp-auth-testing"
         return "ok"
 
-    response = client.get("/", headers=auth_header(token_value))
+    response = client.get("/", headers=tauth.auth_header(token_value))
     assert response.status_code == 200
 
 

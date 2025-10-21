@@ -23,6 +23,7 @@ class FastAPIAuth:
         schema_set = False
 
         def custom_openapi():
+            nonlocal schema_set
             if schema_set:
                 return app.openapi_schema
             schema_set = True
@@ -56,7 +57,9 @@ class FastAPIAuth:
 
         def dependency(request: Request) -> str:
             auth_header = request.headers.get("Authorization")
-            token = self._auth.get_token(auth_header)
+            if auth_header is None:
+                raise HTTPException(status_code=401)
+            return self._auth.get_token(auth_header)
 
         return dependency
 

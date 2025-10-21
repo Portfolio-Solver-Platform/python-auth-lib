@@ -38,19 +38,22 @@ class Auth:
     def _resource(self) -> str:
         return self.config.client_id
 
-    def certs(self) -> dict:
+    def token_certs(self) -> dict:
         return requests.get(
             self._endpoints.certs(), timeout=self.config.request_timeout
         ).json()
+
+    def token_issuer(self) -> str:
+        return self._endpoints.issuer()
 
     def validate_token(self, token: str) -> Token:
         """
         Authorizes the token locally and returns it.
         """
-        key_set = KeySet.import_key_set(self.certs())
+        key_set = KeySet.import_key_set(self.token_certs())
         token = jwt.decode(token, key_set)
         claims_requests = JWTClaimsRegistry(
-            iss={"essential": True, "value": self._endpoints.issuer()},
+            iss={"essential": True, "value": self.token_issuer()},
         )
         claims_requests.validate(token.claims)
         return Token(token, self._resource())

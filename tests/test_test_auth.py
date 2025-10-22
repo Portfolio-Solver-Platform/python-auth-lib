@@ -5,14 +5,24 @@ from psp_auth import Token
 from psp_auth.testing import MockToken, MockUser
 
 
-def test_user_info(client, app, auth, mauth):
-    mock_user = MockUser(given_name="Jan", family_name="Doener")
-    mock_token = MockToken(user=mock_user)
+def test_token_info(client, app, auth, mauth):
+    mock_token = MockToken()
+    mock_user = mock_token.user
 
     @app.get("/")
-    async def get_token(token: Annotated[Token, Depends(auth.token())]):
-        user = token.user
+    async def route(token: Annotated[Token, Depends(auth.token())]):
+        assert token.issuer == mock_token.issuer
+        assert token.expires_at == mock_token.expires_at
+        assert token.issued_at == mock_token.issued_at
+        assert token.token_id == mock_token.token_id
+        assert token.authorized_party == mock_token.authorized_party
+        assert token.audience == (mock_token.audience + [mauth._client_id])
+        assert token.allowed_origins == mock_token.allowed_origins
+        assert token.scopes == mock_token.scopes
+        assert token.session_id == mock_token.session_id
+        assert token.authentication_class == mock_token.authentication_class
 
+        user = token.user
         assert user.id == mock_user.id
         assert user.given_name == mock_user.given_name
         assert user.family_name == mock_user.family_name

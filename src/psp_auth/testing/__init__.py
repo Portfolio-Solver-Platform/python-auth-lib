@@ -90,6 +90,7 @@ class MockToken:
     There may be other custom values as well.
     """
     authentication_class: str = "2"
+    allowed_origins: list[str] = field(default_factory=lambda: ["/*"])
 
     def _claims(self, default_resource: str, extra_audience: list[str] = []) -> dict:
         claims = {
@@ -103,6 +104,7 @@ class MockToken:
             "scope": " ".join(self.scopes if self.scopes else []),
             "sid": self.session_id,
             "acr": self.authentication_class,
+            "allowed_origins": self.allowed_origins,
         }
         claims |= self.user._claims(default_resource)
         return claims

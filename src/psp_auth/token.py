@@ -59,7 +59,11 @@ class Token:
 
     @property
     def scopes(self) -> list[str]:
-        return self.claims["scope"].split(" ")
+        scopes = self.claims["scope"]
+        if scopes == "":
+            return []
+        else:
+            return self.claims["scope"].split(" ")
 
     @property
     def session_id(self) -> str:

@@ -4,7 +4,7 @@ from fastapi.testclient import TestClient
 
 from psp_auth import Auth, AuthConfig
 from psp_auth.fastapi import FastAPIAuth
-from psp_auth.testing import TestAuth
+from psp_auth.testing import MockAuth
 
 
 @pytest.fixture
@@ -14,8 +14,8 @@ def auth(auth_base):
 
 
 @pytest.fixture
-def tauth(auth_base, monkeypatch):
-    test_auth = TestAuth(monkeypatch)
+def mauth(auth_base, monkeypatch):
+    test_auth = MockAuth(monkeypatch)
     yield test_auth
 
 

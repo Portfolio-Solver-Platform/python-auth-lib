@@ -10,50 +10,62 @@ class Token:
         self._token = _token
         self._resource = _resource
 
+    @property
     def claims(self) -> dict:
         return self._token.claims
 
+    @property
     def issuer(self) -> str:
-        return self.claims().get("iss")
+        return self.claims.get("iss")
 
+    @property
     def user(self) -> User:
-        return User(self.claims(), self._resource)
+        return User(self.claims, self._resource)
 
+    @property
     def expires_at(self) -> int:
-        return self.claims()["exp"]
+        return self.claims["exp"]
 
+    @property
     def issued_at(self) -> int:
-        return self.claims()["iat"]
+        return self.claims["iat"]
 
+    @property
     def token_id(self) -> str:
         """
         Returns the ID of this token.
         """
         # Note that this function is explicitly called "token_id", instead of just "id",
         # to avoid users accidentally using token.id() instead of token.user().id().
-        return self.claims()["jti"]
+        return self.claims["jti"]
 
+    @property
     def authorized_party(self) -> str:
         """
         Returns which client requested the token.
         """
-        return self.claims()["azp"]
+        return self.claims["azp"]
 
+    @property
     def audience(self) -> list[str]:
         """
         Returns which clients are authorized to use the token.
         """
-        return self.claims()["aud"]
+        return self.claims["aud"]
 
+    @property
     def allowed_origins(self) -> list[str]:
-        return self.claims()["allowed_origins"]
+        return self.claims["allowed_origins"]
 
+    @property
     def scopes(self) -> list[str]:
-        return self.claims()["scope"].split(" ")
+        return self.claims["scope"].split(" ")
 
+    @property
     def session_id(self) -> str:
-        return self.claims()["sid"]
+        return self.claims["sid"]
 
+    @property
     def authentication_class(self) -> str:
         """
         Returns the authentication class used.
@@ -64,4 +76,4 @@ class Token:
         "2": Multi-factor authentication
         There may be other custom values as well.
         """
-        return self.claims()["acr"]
+        return self.claims["acr"]

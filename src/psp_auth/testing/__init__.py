@@ -7,7 +7,7 @@ from dataclasses import dataclass
 
 
 @dataclass
-class TestUser:
+class MockUser:
     id: str = "testuserid"
     given_name: str = "John"
     family_name: str = "Doe"
@@ -15,7 +15,7 @@ class TestUser:
 
     @property
     def full_name(self) -> str:
-        return f"{self.given_name} + {self.family_name}"
+        return f"{self.given_name} {self.family_name}"
 
 
 def _generate_private_key() -> RSAKey:
@@ -27,7 +27,7 @@ def _public_certs_from_key(key: RSAKey) -> dict:
     return {"keys": [public_jwk]}
 
 
-class TestAuth:
+class MockAuth:
     def __init__(self, monkeypatch, issuer: str | None = None):
         self._issuer = issuer if issuer is not None else "psp-auth-testing"
         self._private_key = _generate_private_key()
@@ -52,7 +52,7 @@ class TestAuth:
     def auth_header(self, token: str) -> dict:
         return {"Authorization": f"Bearer {token}"}
 
-    def gen_token(self, user: TestUser = TestUser(), token_id: str = "testtokenid"):
+    def gen_token(self, user: MockUser = MockUser(), token_id: str = "testtokenid"):
         claims = {
             "iss": self._issuer,
             "sub": user.id,

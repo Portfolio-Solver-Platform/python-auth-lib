@@ -36,7 +36,7 @@ class Token:
         Returns the ID of this token.
         """
         # Note that this function is explicitly called "token_id", instead of just "id",
-        # to avoid users accidentally using token.id() instead of token.user().id().
+        # to avoid users accidentally using token.id instead of token.user.id.
         return self.claims["jti"]
 
     @property

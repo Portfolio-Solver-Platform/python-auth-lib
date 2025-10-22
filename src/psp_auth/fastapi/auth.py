@@ -77,20 +77,15 @@ class FastAPIAuth:
 
         return decorator
 
-    def user_scopes(self):
+    def scopes(self):
         def decorator(
-            security_scopes: SecurityScopes, user: Annotated[User, Depends(self.user())]
+            security_scopes: SecurityScopes,
+            token: Annotated[Token, Depends(self.token())],
         ):
-            if not user.has_all_roles(security_scopes.scopes):
+            if not token.has_scopes(security_scopes.scopes):
                 raise HTTPException(status_code=403)
 
         return decorator
 
-    def require_roles(self, roles: list[str]):
-        def decorator(
-            security_scopes: SecurityScopes, user: Annotated[User, Depends(self.user())]
-        ):
-            if not user.has_all_roles(security_scopes.scopes):
-                raise HTTPException(status_code=403)
-
-        return Security(decorator, scopes=roles)
+    def require_scopes(self, scopes: list[str]):
+        return Security(self.scopes(), scopes=scopes)

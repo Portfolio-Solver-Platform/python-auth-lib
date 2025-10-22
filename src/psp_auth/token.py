@@ -81,3 +81,10 @@ class Token:
         There may be other custom values as well.
         """
         return self.claims["acr"]
+
+    def has_scope(self, scope: str) -> bool:
+        return scope in self.scopes
+
+    def has_scopes(self, scopes: list[str]) -> bool:
+        token_scopes = self.scopes
+        return all(scope in token_scopes for scope in scopes)

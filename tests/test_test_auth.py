@@ -5,12 +5,12 @@ from psp_auth import Token
 from psp_auth.testing import MockToken, MockUser
 
 
-def test_token_info(client, app, auth, mauth):
+def test_token_info(client, app, fauth, mauth):
     mock_token = MockToken()
     mock_user = mock_token.user
 
     @app.get("/")
-    async def route(token: Annotated[Token, Depends(auth.token())]):
+    async def route(token: Annotated[Token, Depends(fauth.token())]):
         assert token.issuer == mock_token.issuer
         assert token.expires_at == mock_token.expires_at
         assert token.issued_at == mock_token.issued_at

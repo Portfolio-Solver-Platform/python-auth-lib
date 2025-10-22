@@ -54,6 +54,7 @@ class Auth:
         token = jwt.decode(token, key_set)
         claims_requests = JWTClaimsRegistry(
             iss={"essential": True, "value": self.token_issuer()},
+            aud={"essential": True, "value": self._resource()},
         )
         claims_requests.validate(token.claims)
         return Token(token, self._resource())

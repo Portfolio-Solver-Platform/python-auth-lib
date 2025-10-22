@@ -143,7 +143,10 @@ class MockAuth:
         monkeypatch.setattr(Auth, "token_issuer", mock_token_issuer)
 
     def auth_header(self, token: str) -> dict:
-        return {"Authorization": f"Bearer {token}"}
+        return {"Authorization": self.auth_header_value(token)}
+
+    def auth_header_value(self, token: str) -> dict:
+        return f"Bearer {token}"
 
     def issue_token(self, token: MockToken, add_client_as_audience: bool = True):
         token = jwt.encode(

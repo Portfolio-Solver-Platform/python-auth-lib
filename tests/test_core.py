@@ -1,43 +1,17 @@
-from starlette.requests import Request
-from typing import Annotated
-from fastapi import Depends
-from psp_auth import Token
-from psp_auth.testing import MockToken, MockUser
+import pytest
+import joserfc
+from psp_auth.testing import MockToken
 
 
-def test_add_docs(client, app, auth):
-    assert True
+def test_wrong_audience(client, app, auth, mauth):
+    audience = ["mytestaudience"]
+    mock_token = MockToken(audience=audience)
+    token = mauth.issue_token(mock_token, add_client_as_audience=False)
+    with pytest.raises(joserfc.errors.InvalidClaimError, match="Invalid claim: 'aud'"):
+        auth.validate_token(token)
 
 
-def test_unvalid_token(client, app, auth, mauth):
-    token_value = "hellothere"
-
-    @app.get("/")
-    async def get_token(token: Annotated[str, Depends(auth.unvalidated_token())]):
-        assert token is not None
-        assert token == token_value
-        return "ok"
-
-    response = client.get("/", headers=mauth.auth_header(token_value))
-    assert response.status_code == 200
-
-
-def test_token(client, app, auth, mauth):
-    token_value = mauth.issue_token(MockToken())
-
-    @app.get("/")
-    async def get_token(token: Annotated[Token, Depends(auth.token())]):
-        assert token is not None
-        return "ok"
-
-    response = client.get("/", headers=mauth.auth_header(token_value))
-    assert response.status_code == 200
-
-
-# def test_require_role(client, app, auth):
-#     @app.get("/", dependencies=[auth.require_roles(["admin"])])
-#     async def valid_token(request: Request):
-#         return "ok"
-#
-#     response = client.get("/")
-#     assert response.status_code == 200
+def test_wrong_audience(client, app, auth, mauth):
+    mock_token = MockToken()
+    token = mauth.issue_token(mock_token, add_client_as_audience=True)
+    assert auth.validate_token(token)

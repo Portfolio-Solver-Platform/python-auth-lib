@@ -8,9 +8,11 @@ from psp_auth.testing import MockAuth
 
 
 @pytest.fixture
-def auth(auth_base):
-    auth = FastAPIAuth(auth_base)
-    yield auth
+def fauth(auth):
+    """
+    FastAPIAuth instance
+    """
+    return FastAPIAuth(auth)
 
 
 @pytest.fixture
@@ -28,10 +30,9 @@ def auth_config():
 
 
 @pytest.fixture
-def auth_base(auth_config: AuthConfig):
+def auth(auth_config: AuthConfig):
     """Test auth"""
-    auth = Auth(auth_config)
-    return auth
+    return Auth(auth_config)
 
 
 @pytest.fixture
@@ -42,8 +43,8 @@ def client(app):
 
 
 @pytest.fixture
-def app(auth):
+def app(fauth):
     """Test app"""
     app = FastAPI()
-    auth.add_docs(app)
+    fauth.add_docs(app)
     yield app

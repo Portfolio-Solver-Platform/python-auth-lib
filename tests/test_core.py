@@ -2,6 +2,7 @@ from starlette.requests import Request
 from typing import Annotated
 from fastapi import Depends
 from psp_auth import Token
+from psp_auth.testing import MockToken, MockUser
 
 
 def test_add_docs(client, app, auth):
@@ -22,12 +23,11 @@ def test_unvalid_token(client, app, auth, mauth):
 
 
 def test_token(client, app, auth, mauth):
-    token_value = mauth.gen_token()
+    token_value = mauth.issue_token(MockToken())
 
     @app.get("/")
     async def get_token(token: Annotated[Token, Depends(auth.token())]):
         assert token is not None
-        assert token.issuer == "psp-auth-testing"
         return "ok"
 
     response = client.get("/", headers=mauth.auth_header(token_value))

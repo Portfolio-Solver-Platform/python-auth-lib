@@ -14,21 +14,24 @@ def auth(auth_base):
 
 
 @pytest.fixture
-def mauth(auth_base, monkeypatch):
-    test_auth = MockAuth(monkeypatch)
-    yield test_auth
+def mauth(auth_config: AuthConfig, monkeypatch):
+    test_auth = MockAuth(auth_config.client_id, monkeypatch)
+    return test_auth
 
 
 @pytest.fixture
-def auth_base():
-    """Test auth"""
-    auth = Auth(
-        AuthConfig(
-            client_id="test_client",
-        )
+def auth_config():
+    config = AuthConfig(
+        client_id="test_client",
     )
+    return config
 
-    yield auth
+
+@pytest.fixture
+def auth_base(auth_config: AuthConfig):
+    """Test auth"""
+    auth = Auth(auth_config)
+    return auth
 
 
 @pytest.fixture

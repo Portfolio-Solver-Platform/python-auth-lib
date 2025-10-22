@@ -73,7 +73,7 @@ class FastAPIAuth:
 
     def user(self):
         def decorator(token: Annotated[Token, Depends(self.token())]) -> User:
-            return token.user()
+            return token.user
 
         return decorator
 

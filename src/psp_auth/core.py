@@ -24,13 +24,12 @@ class Auth:
     _endpoints: OidcEndpoints
     _certs: CachedGetter
 
-    def __init__(self, config: AuthConfig, logger: any = None):
+    def __init__(self, config: AuthConfig):
         """
         Args:
             config: The auth configuration.
         """
         self.config = config
-        self.logger = logger if logger is not None else PrintLogger()
         self._endpoints = OidcEndpoints(
             self.config.well_known_endpoint, self.config.request_timeout
         )

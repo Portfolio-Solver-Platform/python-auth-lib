@@ -46,7 +46,35 @@ def test_has_required_scopes(client, app, fauth, mauth):
     scopes = ["testscope1", "scopetest2"]
     token = MockToken(scopes=scopes)
 
-    @app.get("/", dependencies=[Security(fauth.scopes(), scopes=scopes)])
+    @app.get(
+        "/",
+        dependencies=[
+            Security(fauth.scopes(is_resource_namespaced=False), scopes=scopes)
+        ],
+    )
+    async def route(request: Request):
+        return "ok"
+
+    response = client.get("/", headers=mauth.auth_header(mauth.issue_token(token)))
+    assert response.status_code == 200
+
+
+def test_has_required_namespaced_scopes(client, app, auth_config, fauth, mauth):
+    resource_scopes = [
+        "testscope1",
+        "scopetest2",
+    ]
+    namespaced_scopes = map(
+        lambda scope: f"{auth_config.client_id}:{scope}", resource_scopes
+    )
+    token = MockToken(scopes=namespaced_scopes)
+
+    @app.get(
+        "/",
+        dependencies=[
+            Security(fauth.scopes(is_resource_namespaced=True), scopes=resource_scopes)
+        ],
+    )
     async def route(request: Request):
         return "ok"
 

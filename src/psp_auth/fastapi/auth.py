@@ -77,12 +77,14 @@ class FastAPIAuth:
 
         return decorator
 
-    def scopes(self):
+    def scopes(self, is_resource_namespaced: bool = True):
         def decorator(
             security_scopes: SecurityScopes,
             token: Annotated[Token, Depends(self.token())],
         ):
-            if not token.has_scopes(security_scopes.scopes):
+            if not token.has_scopes(
+                security_scopes.scopes, is_resource_namespaced=is_resource_namespaced
+            ):
                 raise HTTPException(status_code=403)
 
         return decorator

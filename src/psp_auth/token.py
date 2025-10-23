@@ -82,9 +82,10 @@ class Token:
         """
         return self.claims["acr"]
 
-    def has_scope(self, scope: str) -> bool:
-        return scope in self.scopes
-
-    def has_scopes(self, scopes: list[str]) -> bool:
+    def has_scopes(
+        self, scopes: list[str], is_resource_namespaced: bool = True
+    ) -> bool:
         token_scopes = self.scopes
+        if is_resource_namespaced:
+            scopes = map(lambda scope: f"{self._resource}:{scope}", scopes)
         return all(scope in token_scopes for scope in scopes)

@@ -1,8 +1,10 @@
-# Installation
+# Contributing
+
+## Installation
 
 Download the development dependencies by using `pip install -r requirements-dev.txt`.
 
-# Updating dependencies
+## Updating dependencies
 You can manually update dependencies by:
 ```bash
 pip-compile pyproject.toml -o requirements.txt --strip-extras

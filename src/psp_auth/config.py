@@ -25,5 +25,3 @@ class AuthConfig:
         "http://user.psp.svc.cluster.local/.well-known/openid-configuration/internal"
     )
     request_timeout: tuple[int, int] = (1, 5)
-
-    _client_name: str = "psp"

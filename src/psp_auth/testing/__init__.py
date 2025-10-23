@@ -1,8 +1,7 @@
 from psp_auth.core import Auth
 from joserfc import jwt
-from joserfc.jwk import RSAKey, KeyParameters
+from joserfc.jwk import RSAKey
 import time
-import pytest
 from dataclasses import dataclass, field
 
 DEFAULT_ISSUER = "https://auth.testing.psp.com/realms/psp"

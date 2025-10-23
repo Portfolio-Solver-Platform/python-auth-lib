@@ -1,8 +1,7 @@
-from starlette.requests import Request
 from typing import Annotated
 from fastapi import Depends
 from psp_auth import Token
-from psp_auth.testing import MockToken, MockUser
+from psp_auth.testing import MockToken
 
 
 def test_token_info(client, app, fauth, mauth):

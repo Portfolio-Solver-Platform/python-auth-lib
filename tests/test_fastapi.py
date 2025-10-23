@@ -2,7 +2,7 @@ from starlette.requests import Request
 from typing import Annotated
 from fastapi import Depends, Security
 from psp_auth import Token, User
-from psp_auth.testing import MockToken, MockUser
+from psp_auth.testing import MockToken
 
 
 def test_unvalid_token(client, app, fauth, mauth):

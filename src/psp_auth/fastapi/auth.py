@@ -1,7 +1,6 @@
 from typing import Annotated
 from fastapi import FastAPI, Request, Depends, HTTPException, Security
 from fastapi.security import SecurityScopes
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from ..core import Auth
 from ..token import Token
 from ..user import User

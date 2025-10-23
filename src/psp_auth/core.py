@@ -5,7 +5,6 @@ from joserfc.jwt import JWTClaimsRegistry
 import requests
 
 from .config import AuthConfig
-from .cache import CachedGetter
 from .endpoints import OidcEndpoints
 from .token import Token
 
@@ -18,7 +17,6 @@ class Auth:
     config: AuthConfig
     logger: any
     _endpoints: OidcEndpoints
-    _certs: CachedGetter
 
     def __init__(self, config: AuthConfig):
         """

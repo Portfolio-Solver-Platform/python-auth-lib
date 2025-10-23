@@ -58,7 +58,7 @@ class MockUser:
             resource_access[default_resource] = roles_dict(self.roles)
 
         if self.resource_roles:
-            for resource, roles in self.resource_roles:
+            for resource, roles in self.resource_roles.items():
                 resource_access[resource] = roles_dict(roles)
 
         claims["resource_access"] = resource_access
@@ -75,7 +75,7 @@ class MockToken:
     expires_at: int = field(
         default_factory=lambda: int(time.time()) + 3600
     )  # Expires in 1 hour
-    token_id: int = "onrtrt:00b4dfb6-ad71-24de-9db5-dc5e9383c14f"
+    token_id: str = "onrtrt:00b4dfb6-ad71-24de-9db5-dc5e9383c14f"
     authorized_party: str = "users"
     audience: list[str] = field(default_factory=list)
     session_id: str = "4a31869d-dc4a-4727-b28a-be5c92a16f4b"
@@ -144,7 +144,7 @@ class MockAuth:
     def auth_header(self, token: str) -> dict:
         return {"Authorization": self.auth_header_value(token)}
 
-    def auth_header_value(self, token: str) -> dict:
+    def auth_header_value(self, token: str) -> str:
         return f"Bearer {token}"
 
     def issue_token(self, token: MockToken, add_client_as_audience: bool = True):

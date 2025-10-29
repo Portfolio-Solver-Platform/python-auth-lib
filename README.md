@@ -42,4 +42,3 @@ def protected_route(request: Request):
     user = token.user()
     # user has information, like `user.id()` and `user.full_name()`.
 ```
-

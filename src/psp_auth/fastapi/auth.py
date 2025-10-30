@@ -27,6 +27,7 @@ class FastAPIAuth:
                 return app.openapi_schema
             schema_set = True
 
+            nonlocal original_schema
             schema = original_schema
             schema["components"]["securitySchemes"] = {
                 _SECURITY_SCHEME_NAME: {

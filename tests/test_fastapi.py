@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import Depends, status
 from psp_auth import Token, User
 from psp_auth.testing import MockToken
-from psp_auth.fastapi.auth import _SECURITY_SCHEME_NAME as SECURITY_SCHEMA_NAME
+from psp_auth.fastapi.auth import _SECURITY_SCHEME_NAME as SECURITY_SCHEME_NAME
 
 
 def test_unvalid_token(client, app, fauth, mauth):
@@ -119,12 +119,12 @@ def test_has_some_required_scopes(client, app, fauth, mauth):
 def test_app_docs(client, app, fauth, mauth):
     fauth.add_docs(app)
 
-    security_schema = app.openapi()["components"]["securitySchemes"][
-        SECURITY_SCHEMA_NAME
+    security_scheme = app.openapi()["components"]["securitySchemes"][
+        SECURITY_SCHEME_NAME
     ]
-    assert security_schema["type"] == "http"
-    assert security_schema["scheme"] == "bearer"
-    assert security_schema["bearerFormat"] == "jwt"
+    assert security_scheme["type"] == "http"
+    assert security_scheme["scheme"] == "bearer"
+    assert security_scheme["bearerFormat"] == "jwt"
 
 
 def test_scope_docs(client, app, fauth, mauth):
@@ -144,6 +144,6 @@ def test_scope_docs(client, app, fauth, mauth):
     response = client.get("/", headers=mauth.auth_header(mauth.issue_token(token)))
     assert response.status_code == status.HTTP_200_OK
 
-    assert app.openapi()["paths"]["/"]["get"]["security"][0][SECURITY_SCHEMA_NAME] == [
+    assert app.openapi()["paths"]["/"]["get"]["security"][0][SECURITY_SCHEME_NAME] == [
         mauth.resource_namespace_scope(scope) for scope in scopes
     ]

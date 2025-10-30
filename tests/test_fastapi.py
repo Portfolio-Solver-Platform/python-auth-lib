@@ -1,7 +1,6 @@
 from starlette.requests import Request
 from typing import Annotated
 from fastapi import Depends, status
-import psp_auth
 from psp_auth import Token, User
 from psp_auth.testing import MockToken
 from psp_auth.fastapi.auth import _SECURITY_SCHEME_NAME as SECURITY_SCHEMA_NAME

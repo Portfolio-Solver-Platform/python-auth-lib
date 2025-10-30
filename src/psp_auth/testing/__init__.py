@@ -7,6 +7,10 @@ from dataclasses import dataclass, field
 DEFAULT_ISSUER = "https://auth.testing.psp.com/realms/psp"
 
 
+def _add_prefix_to_all(prefix: str, v: list[str]) -> list[str]:
+    return [f"{prefix}{x}" for x in v]
+
+
 @dataclass
 class MockUser:
     id: str = "057144ec-9588-4cc8-a9d7-3b3a040080b5"
@@ -91,7 +95,20 @@ class MockToken:
     authentication_class: str = "2"
     allowed_origins: list[str] = field(default_factory=lambda: ["/*"])
 
-    def _claims(self, default_resource: str, extra_audience: list[str] = []) -> dict:
+    def _claims(
+        self,
+        default_resource: str,
+        extra_audience: list[str] = [],
+        prepend_resource_to_scopes: bool = True,
+    ) -> dict:
+        scopes = (
+            _add_prefix_to_all(f"{default_resource}:", self.scopes)
+            if prepend_resource_to_scopes
+            else self.scopes
+        )
+
+        print(scopes)
+
         claims = {
             "iss": self.issuer,
             "exp": self.expires_at,
@@ -100,7 +117,7 @@ class MockToken:
             "azp": self.authorized_party,
             "typ": "Bearer",
             "aud": (self.audience if self.audience else []) + extra_audience,
-            "scope": " ".join(self.scopes if self.scopes else []),
+            "scope": " ".join(scopes),
             "sid": self.session_id,
             "acr": self.authentication_class,
             "allowed_origins": self.allowed_origins,
@@ -147,12 +164,18 @@ class MockAuth:
     def auth_header_value(self, token: str) -> str:
         return f"Bearer {token}"
 
-    def issue_token(self, token: MockToken, add_client_as_audience: bool = True):
+    def issue_token(
+        self,
+        token: MockToken,
+        add_client_as_audience: bool = True,
+        is_resource_namespaced: bool = True,
+    ):
         token = jwt.encode(
             header={"alg": "RS256", "kid": self._private_key.kid, "typ": "JWT"},
             claims=token._claims(
                 self._client_id,
                 extra_audience=[self._client_id] if add_client_as_audience else [],
+                prepend_resource_to_scopes=is_resource_namespaced,
             ),
             key=self._private_key,
         )

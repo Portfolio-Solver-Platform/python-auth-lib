@@ -44,6 +44,7 @@ class FastAPIAuth:
         app.openapi = custom_openapi
 
     def scope_docs(self, scopes: list[str]):
+        # TODO: Make the scope resource-namespaced
         return {"security": [{_SECURITY_SCHEME_NAME: scopes}]}
 
     def unvalidated_token(self):

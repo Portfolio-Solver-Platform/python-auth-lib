@@ -27,13 +27,16 @@ class FastAPIAuth:
                 return app.openapi_schema
             schema_set = True
 
+            nonlocal original_schema
             schema = original_schema
-            schema["components"]["securitySchemes"] = {
-                _SECURITY_SCHEME_NAME: {
-                    "type": "http",
-                    "scheme": "bearer",
-                    "bearerFormat": "jwt",
-                    "description": "JWT access token in the Authorization bearer format",
+            schema["components"] = {
+                "securitySchemes": {
+                    _SECURITY_SCHEME_NAME: {
+                        "type": "http",
+                        "scheme": "bearer",
+                        "bearerFormat": "jwt",
+                        "description": "JWT access token in the Authorization bearer format",
+                    }
                 }
             }
 
@@ -42,7 +45,10 @@ class FastAPIAuth:
 
         app.openapi = custom_openapi
 
-    def scope_docs(self, scopes: list[str]):
+    def scope_docs(self, scopes: list[str], is_resource_namespaced: bool = True):
+        if is_resource_namespaced:
+            scopes = [f"{self._auth.config.client_id}:{scope}" for scope in scopes]
+
         return {"security": [{_SECURITY_SCHEME_NAME: scopes}]}
 
     def unvalidated_token(self):
@@ -76,7 +82,7 @@ class FastAPIAuth:
 
         return decorator
 
-    def scopes(self, is_resource_namespaced: bool = True):
+    def _scopes(self, is_resource_namespaced: bool = True):
         def decorator(
             security_scopes: SecurityScopes,
             token: Annotated[Token, Depends(self.token())],
@@ -88,5 +94,7 @@ class FastAPIAuth:
 
         return decorator
 
-    def require_scopes(self, scopes: list[str]):
-        return Security(self.scopes(), scopes=scopes)
+    def require_scopes(self, scopes: list[str], is_resource_namespaced: bool = True):
+        return Security(
+            self._scopes(is_resource_namespaced=is_resource_namespaced), scopes=scopes
+        )

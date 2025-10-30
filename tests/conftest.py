@@ -46,5 +46,4 @@ def client(app):
 def app(fauth):
     """Test app"""
     app = FastAPI()
-    fauth.add_docs(app)
     yield app

@@ -107,8 +107,6 @@ class MockToken:
             else self.scopes
         )
 
-        print(scopes)
-
         claims = {
             "iss": self.issuer,
             "exp": self.expires_at,
@@ -181,3 +179,6 @@ class MockAuth:
         )
 
         return token
+
+    def resource_namespace_scope(self, scope: str) -> str:
+        return f"{self._client_id}:{scope}"

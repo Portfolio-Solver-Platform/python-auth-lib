@@ -3,10 +3,14 @@ from joserfc import jwt
 from joserfc.jwk import KeySet
 from joserfc.jwt import JWTClaimsRegistry
 import requests
+import httpx
+import logging
 
 from .config import AuthConfig
 from .endpoints import OidcEndpoints
 from .token import Token
+
+logger = logging.getLogger(__name__)
 
 
 class Auth:
@@ -65,8 +69,34 @@ class Auth:
 
         return parts[1]
 
-    async def validate_token_remotely(self, token: Token):
+    async def _make_introspection_request(self, url: str, data: dict) -> dict:
+        async with httpx.AsyncClient(timeout=timeout) as client:
+            response = await client.post(
+                url, data, auth=(self.config.client_id, self.config.client_secret)
+            )
+        if response.status_code == 401:
+            logger.error("Invalid client credentials")
+        elif response.status_code == 403:
+            logger.error("You don't have permission to validate/introspect tokens")
+
+        response.raise_for_status()
+        return response.json()
+
+    async def validate_token_remotely(self, token: Token) -> bool:
         """
         Authorizes the token remotely to verify that it has not been revoked.
+        This is also called token introspection.
         """
-        raise NotImplementedError()
+        timeout = httpx.Timeout(10.0, connect=5.0)
+        url = self._endpoints.introspection()
+        data = {
+            "token": token._token,
+            "token_type_hint": "access_token",
+        }
+        response = self._make_introspection_request(url, data)
+
+        if "active" not in response:
+            logger.warning("'active' was not in the introspection response")
+            return False
+
+        return response.get("active", False) is True

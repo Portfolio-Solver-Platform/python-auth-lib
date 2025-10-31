@@ -5,7 +5,7 @@ from ..core import Auth
 from ..token import Token
 from ..user import User
 
-_SECURITY_SCHEME_NAME = "AccessTokenBearer"
+_SECURITY_SCHEME_NAME = "JWT"
 
 
 class FastAPIAuth:
@@ -29,6 +29,7 @@ class FastAPIAuth:
 
             nonlocal original_schema
             schema = original_schema
+            schema["security"] = {_SECURITY_SCHEME_NAME: []}
             schema["components"] = {
                 "securitySchemes": {
                     _SECURITY_SCHEME_NAME: {

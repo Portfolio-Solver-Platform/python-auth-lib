@@ -25,7 +25,7 @@ class FastAPIAuth:
     def __init__(self, auth: Auth):
         self._auth = auth
 
-    def add_docs(self, app: FastAPI):
+    def add_docs(self, app: FastAPI, is_globally_protected: bool = True):
         """
         Adds the authentication scheme to the `app` openapi documentation.
         """
@@ -40,7 +40,9 @@ class FastAPIAuth:
 
             nonlocal original_schema
             schema = original_schema
-            schema["security"] = [{_SECURITY_SCHEME_NAME: []}]
+            schema["security"] = (
+                [{_SECURITY_SCHEME_NAME: []}] if is_globally_protected else []
+            )
             if "components" not in schema:
                 schema["components"] = {}
             schema["components"] |= {

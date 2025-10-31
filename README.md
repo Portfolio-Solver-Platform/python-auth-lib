@@ -12,7 +12,7 @@ The `Auth` class contains the core authentication and authorisation functionalit
 ```python
 auth_core = Auth(AuthConfig("my-service"))
 ```
-, where `"my-service"` is the service name, corresponding with the resource in the auth provider.
+where `"my-service"` is the service name, corresponding with the resource in the auth provider.
 
 > [!IMPORTANT]
 > See [Keycloak](https://github.com/Portfolio-Solver-Platform/keycloak) for how to set up the resource.

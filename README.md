@@ -8,11 +8,9 @@ You can find [the package on PyPI](https://pypi.org/project/psp-auth/) and insta
 
 ## Usage
 
-If you use FastAPI, skip to the [FastAPI section](#FastAPI).
-
 The `Auth` class contains the core authentication and authorisation functionality. You create it like this:
 ```python
-auth = Auth(AuthConfig("my-service"))
+auth_core = Auth(AuthConfig("my-service"))
 ```
 , where `"my-service"` is the service name, corresponding with the resource in the auth provider.
 
@@ -23,12 +21,13 @@ auth = Auth(AuthConfig("my-service"))
 
 This section will describe how to use the FastAPI module. You initialise it like this:
 ```python
-auth = FastAPIAuth(Auth(AuthConfig("my-service")))
+auth = FastAPIAuth(auth_core)
 ```
 
 You should then use the `FastAPIAuth.add_docs` function on your FastAPI app:
 ```python
-# app is defined above
+app = FastAPI(...)
+
 auth.add_docs(app)
 ```
 

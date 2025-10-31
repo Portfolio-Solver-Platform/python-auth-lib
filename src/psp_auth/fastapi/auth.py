@@ -13,7 +13,7 @@ def _security_scheme_docs(scheme_name: str) -> dict:
         scheme_name: {
             "type": "http",
             "scheme": "bearer",
-            "bearerFormat": "jwt",
+            "bearerFormat": "JWT",
             "description": "JWT access token in the Authorization bearer format",
         }
     }
@@ -40,7 +40,7 @@ class FastAPIAuth:
 
             nonlocal original_schema
             schema = original_schema
-            schema["security"] = {_SECURITY_SCHEME_NAME: []}
+            schema["security"] = [{_SECURITY_SCHEME_NAME: []}]
             if "components" not in schema:
                 schema["components"] = {}
             schema["components"] |= {

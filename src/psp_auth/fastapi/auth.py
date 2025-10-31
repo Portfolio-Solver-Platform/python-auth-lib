@@ -8,6 +8,17 @@ from ..user import User
 _SECURITY_SCHEME_NAME = "JWT"
 
 
+def _security_scheme_docs(scheme_name: str) -> dict:
+    return {
+        scheme_name: {
+            "type": "http",
+            "scheme": "bearer",
+            "bearerFormat": "jwt",
+            "description": "JWT access token in the Authorization bearer format",
+        }
+    }
+
+
 class FastAPIAuth:
     _auth: Auth
 
@@ -30,15 +41,10 @@ class FastAPIAuth:
             nonlocal original_schema
             schema = original_schema
             schema["security"] = {_SECURITY_SCHEME_NAME: []}
-            schema["components"] = {
-                "securitySchemes": {
-                    _SECURITY_SCHEME_NAME: {
-                        "type": "http",
-                        "scheme": "bearer",
-                        "bearerFormat": "jwt",
-                        "description": "JWT access token in the Authorization bearer format",
-                    }
-                }
+            if "components" not in schema:
+                schema["components"] = {}
+            schema["components"] |= {
+                "securitySchemes": _security_scheme_docs(_SECURITY_SCHEME_NAME)
             }
 
             app.openapi_schema = schema

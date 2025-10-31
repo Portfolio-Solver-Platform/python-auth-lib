@@ -116,7 +116,7 @@ def test_has_some_required_scopes(client, app, fauth, mauth):
     assert response.status_code == status.HTTP_403_FORBIDDEN
 
 
-def test_app_docs(client, app, fauth, mauth):
+def test_app_docs_security_schemes(client, app, fauth, mauth):
     fauth.add_docs(app)
 
     security_scheme = app.openapi()["components"]["securitySchemes"][
@@ -124,7 +124,17 @@ def test_app_docs(client, app, fauth, mauth):
     ]
     assert security_scheme["type"] == "http"
     assert security_scheme["scheme"] == "bearer"
-    assert security_scheme["bearerFormat"] == "jwt"
+    assert security_scheme["bearerFormat"] == "JWT"
+
+
+def test_app_docs_security_global(client, app, fauth, mauth):
+    fauth.add_docs(app)
+    assert app.openapi()["security"] == [{SECURITY_SCHEME_NAME: []}]
+
+
+def test_app_docs_security_not_global(client, app, fauth, mauth):
+    fauth.add_docs(app, is_globally_protected=False)
+    assert app.openapi()["security"] == []
 
 
 def test_scope_docs(client, app, fauth, mauth):

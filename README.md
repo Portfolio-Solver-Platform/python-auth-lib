@@ -34,7 +34,7 @@ auth.add_docs(app)
 Then, for an endpoint, you can require that the request has scopes:
 ```python
 SCOPES = ["my-scope"]
-@app.get("/protected-route", dependencies=[auth.require_scopes(SCOPES)], openapi_extra=auth.scope_docs([SCOPES]))
+@app.get("/protected-route", dependencies=[auth.require_scopes(SCOPES)], openapi_extra=auth.scope_docs(SCOPES))
 def protected_route():
     # (...)
 ```

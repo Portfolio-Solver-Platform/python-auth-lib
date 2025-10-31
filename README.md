@@ -1,44 +1,51 @@
 # Auth Library for Python
 
-A library that implements the authentication and authorisation for services. It assumes that you use FastAPI.
+A library that implements authentication and authorisation for services in the Portfolio Solver Platform (PSP).
 
 ## Installation
 
-WIP
+You can find [the package on PyPI](https://pypi.org/project/psp-auth/) and install it like you would any other PyPI package.
 
 ## Usage
 
-First, create the auth:
+If you use FastAPI, skip to the [FastAPI section](#FastAPI).
+
+The `Auth` class contains the core authentication and authorisation functionality. You create it like this:
 ```python
 auth = Auth(AuthConfig("my-service"))
 ```
 , where `"my-service"` is the service name, corresponding with the resource in the auth provider.
 
 > [!IMPORTANT]
-> See the [user service](https://github.com/Portfolio-Solver-Platform/user) for how to set up the resource.
+> See [Keycloak](https://github.com/Portfolio-Solver-Platform/keycloak) for how to set up the resource.
 
-Then, for an endpoint, you can require that the user has a role:
+### FastAPI
+
+This section will describe how to use the FastAPI module. You initialise it like this:
+```python
+auth = FastAPIAuth(Auth(AuthConfig("my-service")))
+```
+
+You should then use the `FastAPIAuth.add_docs` function on your FastAPI app:
+```python
+# app is defined above
+auth.add_docs(app)
+```
+
+Then, for an endpoint, you can require that the request has a scope:
+```python
+@app.get("/protected-route", dependencies=[auth.require_scope("my-scope")], openapi_extra=auth.scope_docs(["my-scope"]))
+def protected_route():
+    # (...)
+```
+Note that the `openapi_extra` part provides the OpenAPI documentation, while the `dependencies` part provides the functionality.
+
+To get information about the user, you can use `auth.user()` in a `Depends`:
 ```python
 @app.get("/protected-route")
-@auth.require_role("my-role"):
-def protected_route(request: Request):
+def protected_route(user: Annotated[User, Depends(auth.user())]):
+    # user has information like their ID, and optionally information like their name
     # (...)
 ```
 
-> [!IMPORTANT]
-> You NEED to have the `request: Request` parameter to the function.
-> Additionally, `@auth.require_role(...)` has to be after `@app.get(...)`.
-
-You can also require that the user has one out of a list of roles: `auth.require_any_role(["first-role", "second-role", ...])`
-You can also require that the user has multiple roles: `auth.require_all_roles(["first-role", "second-role", ...])`
-
-> [!NOTE]
-> There are also similar decorators for checking roles on other resources than your own, for example: `auth.require_resource_role("other-service", "their-role")`.
-
-If you need to access the user's information in an endpoint, you can do:
-```python
-def protected_route(request: Request):
-    token = auth.get_token(request)
-    user = token.user()
-    # user has information, like `user.id()` and `user.full_name()`.
-```
+Similarly, you can get access to the token using `Annotated[Token, Depends(auth.token())]`.

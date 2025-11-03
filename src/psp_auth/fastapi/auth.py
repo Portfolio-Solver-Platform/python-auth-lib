@@ -114,7 +114,7 @@ class FastAPIAuth:
 
     def require_remote_token_validation(self) -> Depends:
         def decorator(
-            token: Annotated[str, Depends(self.token())],
+            token: Annotated[str, Depends(self.token())],  # First check locally
         ) -> Token:
             if not self._auth.validate_token_remotely(token):
                 raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)

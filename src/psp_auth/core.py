@@ -96,14 +96,14 @@ class Auth:
         response.raise_for_status()
         return response.json()
 
-    async def validate_token_remotely(self, token: Token) -> bool:
+    async def validate_token_remotely(self, token: str) -> bool:
         """
         Authorizes the token remotely to verify that it has not been revoked.
         This is also called token introspection.
         """
         url = self._endpoints.introspection()
         data = {
-            "token": token._token,
+            "token": token,
             "token_type_hint": "access_token",
         }
         response = await self._make_introspection_request(url, data)

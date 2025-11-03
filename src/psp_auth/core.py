@@ -83,6 +83,7 @@ class Auth:
         return parts[1]
 
     async def _make_introspection_request(self, url: str, data: dict) -> dict:
+        timeout = httpx.Timeout(10.0, connect=5.0)
         async with httpx.AsyncClient(timeout=timeout) as client:
             response = await client.post(
                 url, data, auth=(self.config.client_id, self.config.client_secret)
@@ -100,13 +101,12 @@ class Auth:
         Authorizes the token remotely to verify that it has not been revoked.
         This is also called token introspection.
         """
-        timeout = httpx.Timeout(10.0, connect=5.0)
         url = self._endpoints.introspection()
         data = {
             "token": token._token,
             "token_type_hint": "access_token",
         }
-        response = self._make_introspection_request(url, data)
+        response = await self._make_introspection_request(url, data)
         print(response)
 
         if "active" not in response:

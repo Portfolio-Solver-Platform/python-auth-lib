@@ -86,7 +86,7 @@ class Auth:
         timeout = httpx.Timeout(10.0, connect=5.0)
         async with httpx.AsyncClient(timeout=timeout) as client:
             response = await client.post(
-                url, data, auth=(self.config.client_id, self.config.client_secret)
+                url, data=data, auth=(self.config.client_id, self.config.client_secret)
             )
         if response.status_code == 401:
             logger.error("Invalid client credentials")

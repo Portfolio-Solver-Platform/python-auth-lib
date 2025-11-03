@@ -4,6 +4,7 @@ from fastapi.security import SecurityScopes
 from ..core import Auth
 from ..token import Token
 from ..user import User
+from ..errors import AuthException, AuthExceptionType
 
 _SECURITY_SCHEME_NAME = "JWT"
 
@@ -17,6 +18,17 @@ def _security_scheme_docs(scheme_name: str) -> dict:
             "description": "JWT access token in the Authorization bearer format",
         }
     }
+
+
+def _auth_exception_to_http(e: AuthException) -> HTTPException:
+    if e.type == AuthExceptionType.UNAUTHORIZED:
+        status_code = status.HTTP_401_UNAUTHORIZED
+    elif e.type == AuthExceptionType.FORBIDDEN:
+        status_code = status.HTTP_403_FORBIDDEN
+    else:
+        status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+
+    return HTTPException(status_code=status_code, detail=e.detail)
 
 
 class FastAPIAuth:
@@ -83,7 +95,10 @@ class FastAPIAuth:
         def decorator(
             token: Annotated[str, Depends(self.unvalidated_token())],
         ) -> Token:
-            return self._auth.validate_token(token)
+            try:
+                return self._auth.validate_token(token)
+            except AuthException as e:
+                raise _auth_exception_to_http(e)
 
         return decorator
 
@@ -113,10 +128,10 @@ class FastAPIAuth:
         )
 
     def require_remote_token_validation(self) -> Depends:
-        def decorator(
+        async def dependency(
             token: Annotated[str, Depends(self.token())],  # First check locally
         ) -> Token:
-            if not self._auth.validate_token_remotely(token):
+            if not await self._auth.validate_token_remotely(token):
                 raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
-        return decorator
+        return Depends(dependency)

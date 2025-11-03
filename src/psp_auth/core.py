@@ -2,6 +2,7 @@ from fastapi import HTTPException
 from joserfc import jwt
 from joserfc.jwk import KeySet
 from joserfc.jwt import JWTClaimsRegistry
+from joserfc.errors import InvalidClaimError
 import requests
 import httpx
 import logging
@@ -9,6 +10,7 @@ import logging
 from .config import AuthConfig
 from .endpoints import OidcEndpoints
 from .token import Token
+from .errors import AuthException, AuthExceptionType
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +55,18 @@ class Auth:
             iss={"essential": True, "value": self.token_issuer()},
             aud={"essential": True, "value": self._resource()},
         )
-        claims_requests.validate(token.claims)
+
+        try:
+            claims_requests.validate(token.claims)
+        except InvalidClaimError as e:
+            if e.claim == "aud":
+                detail = f"The audience does not contain {self._resource()}"
+            elif e.claim == "iss":
+                detail = f"The issuer is not {self.token_issuer()}"
+            else:
+                raise e
+            raise AuthException(AuthExceptionType.FORBIDDEN, detail)
+
         return Token(token, self._resource())
 
     def get_token(self, auth_header: str) -> str:
@@ -94,6 +107,7 @@ class Auth:
             "token_type_hint": "access_token",
         }
         response = self._make_introspection_request(url, data)
+        print(response)
 
         if "active" not in response:
             logger.warning("'active' was not in the introspection response")

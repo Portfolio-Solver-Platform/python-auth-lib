@@ -157,3 +157,19 @@ def test_scope_docs(client, app, fauth, mauth):
     assert app.openapi()["paths"]["/"]["get"]["security"][0][SECURITY_SCHEME_NAME] == [
         mauth.resource_namespace_scope(scope) for scope in scopes
     ]
+
+
+# def test_remote_token_validation(client, app, fauth, mauth):
+#     token = MockToken()
+#
+#     @app.get(
+#         "/",
+#         dependencies=[fauth.require_remote_token_validation()],
+#     )
+#     async def route(request: Request):
+#         return "ok"
+#
+#     fauth.add_docs(app)
+#
+#     response = client.get("/", headers=mauth.auth_header(mauth.issue_token(token)))
+#     assert response.status_code == status.HTTP_200_OK

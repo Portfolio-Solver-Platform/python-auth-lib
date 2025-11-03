@@ -1,13 +1,19 @@
 import pytest
 import joserfc
 from psp_auth.testing import MockToken
+from pprint import pprint
+from psp_auth.errors import AuthException, AuthExceptionType
 
 
 def test_wrong_audience(client, app, auth, mauth):
     audience = ["mytestaudience"]
     mock_token = MockToken(audience=audience)
     token = mauth.issue_token(mock_token, add_client_as_audience=False)
-    with pytest.raises(joserfc.errors.InvalidClaimError, match="Invalid claim: 'aud'"):
+    with pytest.raises(
+        AuthException,
+        match="The audience",
+        check=lambda e: e.type == AuthExceptionType.FORBIDDEN,
+    ):
         auth.validate_token(token)
 
 

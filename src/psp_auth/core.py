@@ -113,4 +113,4 @@ class Auth:
             logger.warning("'active' was not in the introspection response")
             return False
 
-        return response.get("active", False) is True
+        return response["active"] is True

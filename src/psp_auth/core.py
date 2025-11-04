@@ -95,7 +95,6 @@ class Auth:
                 auth=(self.config.client_id, self.config.client_secret),
                 headers={
                     "Host": self._public_endpoints.issuer(),
-                    "Content-Type": "application/x-www-form-urlencoded",
                 },
             )
             if response.status_code == 401:

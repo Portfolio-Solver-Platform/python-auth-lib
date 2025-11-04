@@ -1,6 +1,5 @@
 from psp_auth.core import Auth
 from joserfc import jwt
-from joserfc.errors import InvalidClaimError
 from joserfc.jwk import RSAKey
 import time
 from dataclasses import dataclass, field

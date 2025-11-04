@@ -4,7 +4,6 @@ from fastapi import Depends, status
 from psp_auth import Token, User
 from psp_auth.testing import MockToken
 from psp_auth.fastapi.auth import _SECURITY_SCHEME_NAME as SECURITY_SCHEME_NAME
-import pytest
 
 
 def test_unvalid_token(client, app, fauth, mauth):

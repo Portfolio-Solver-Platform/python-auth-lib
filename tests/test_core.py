@@ -1,7 +1,5 @@
 import pytest
-import joserfc
 from psp_auth.testing import MockToken
-from pprint import pprint
 from psp_auth.errors import AuthException, AuthExceptionType
 
 

@@ -4,7 +4,7 @@ from enum import Enum
 class AuthExceptionType(Enum):
     UNAUTHORIZED = "unauthorized"
     FORBIDDEN = "forbidden"
-    TOKEN_EXPIRED = "token_expired"
+    TOKEN_EXPIRED = "token_expired"  # nosec B105 - error code, not a password
 
 
 class AuthException(Exception):

@@ -85,12 +85,14 @@ class Auth:
     async def _make_introspection_request(self, url: str, data: dict) -> dict:
         timeout = httpx.Timeout(10.0, connect=5.0)
         async with httpx.AsyncClient(timeout=timeout) as client:
+            print(data)
             response = await client.post(
                 url,
                 data=data,
                 # auth=(self.config.client_id, self.config.client_secret),
                 # headers={"Content-Type": "application/x-www-form-urlencoded"},
             )
+            print(response)
             if response.status_code == 401:
                 logger.error("Invalid client credentials")
             elif response.status_code == 403:

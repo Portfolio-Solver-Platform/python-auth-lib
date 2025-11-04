@@ -110,13 +110,19 @@ class Auth:
         Authorizes the token remotely to verify that it has not been revoked.
         This is also called token introspection.
         """
+        if self.config.client_secret is None:
+            raise ValueError(
+                "Client secret is required for remote token validation (introspection). "
+                "Please provide client_secret in the configuration."
+            )
+            return False
+
         url = self._endpoints.introspection()
         data = {
             "token": token,
             "token_type_hint": "access_token",
         }
         response = await self._make_introspection_request(url, data)
-        print(response)
 
         if "active" not in response:
             logger.warning("'active' was not in the introspection response")

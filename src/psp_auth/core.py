@@ -2,7 +2,7 @@ from fastapi import HTTPException
 from joserfc import jwt
 from joserfc.jwk import KeySet
 from joserfc.jwt import JWTClaimsRegistry
-from joserfc.errors import InvalidClaimError
+from joserfc.errors import InvalidClaimError, ExpiredTokenError
 import requests
 import httpx
 import logging
@@ -70,6 +70,8 @@ class Auth:
             else:
                 raise e
             raise AuthException(AuthExceptionType.FORBIDDEN, detail)
+        except ExpiredTokenError:
+            raise AuthException(AuthExceptionType.TOKEN_EXPIRED, "The token is expired")
 
         return Token(token, self._resource())
 
@@ -86,10 +88,16 @@ class Auth:
 
         return parts[1]
 
-    async def _make_introspection_request(self, url: str, data: dict) -> dict:
+    async def _make_introspection_request(self, token: str) -> httpx.Response:
+        print("REQUEST!!!")
+        url = self._endpoints.introspection()
+        data = {
+            "token": token,
+            "token_type_hint": "access_token",
+        }
         timeout = httpx.Timeout(10.0, connect=5.0)
         async with httpx.AsyncClient(timeout=timeout) as client:
-            response = await client.post(
+            return await client.post(
                 url,
                 data=data,
                 auth=(self.config.client_id, self.config.client_secret),
@@ -97,13 +105,6 @@ class Auth:
                     "Host": self._public_endpoints.issuer(),
                 },
             )
-            if response.status_code == 401:
-                logger.error("Invalid client credentials")
-            elif response.status_code == 403:
-                logger.error("You don't have permission to validate/introspect tokens")
-
-            response.raise_for_status()
-            return response.json()
 
     async def validate_token_remotely(self, token: str) -> bool:
         """
@@ -117,15 +118,18 @@ class Auth:
             )
             return False
 
-        url = self._endpoints.introspection()
-        data = {
-            "token": token,
-            "token_type_hint": "access_token",
-        }
-        response = await self._make_introspection_request(url, data)
+        response = await self._make_introspection_request(token)
 
-        if "active" not in response:
+        if response.status_code == 401:
+            logger.error("Invalid client credentials")
+        elif response.status_code == 403:
+            logger.error("You don't have permission to validate/introspect tokens")
+
+        response.raise_for_status()
+        json = response.json()
+
+        if "active" not in json:
             logger.warning("'active' was not in the introspection response")
             return False
 
-        return response["active"] is True
+        return json["active"] is True

@@ -4,6 +4,7 @@ from enum import Enum
 class AuthExceptionType(Enum):
     UNAUTHORIZED = "unauthorized"
     FORBIDDEN = "forbidden"
+    TOKEN_EXPIRED = "token_expired"
 
 
 class AuthException(Exception):

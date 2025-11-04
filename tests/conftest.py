@@ -23,9 +23,7 @@ def mauth(auth_config: AuthConfig, monkeypatch):
 
 @pytest.fixture
 def auth_config():
-    config = AuthConfig(
-        client_id="test_client",
-    )
+    config = AuthConfig(client_id="test_client", client_secret="some_secret")
     return config
 
 

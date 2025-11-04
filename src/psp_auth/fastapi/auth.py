@@ -21,7 +21,10 @@ def _security_scheme_docs(scheme_name: str) -> dict:
 
 
 def _auth_exception_to_http(e: AuthException) -> HTTPException:
-    if e.type == AuthExceptionType.UNAUTHORIZED:
+    if (
+        e.type == AuthExceptionType.UNAUTHORIZED
+        or e.type == AuthExceptionType.TOKEN_EXPIRED
+    ):
         status_code = status.HTTP_401_UNAUTHORIZED
     elif e.type == AuthExceptionType.FORBIDDEN:
         status_code = status.HTTP_403_FORBIDDEN
@@ -131,7 +134,10 @@ class FastAPIAuth:
         async def dependency(
             token: Annotated[str, Depends(self.unvalidated_token())],
         ) -> Token:
-            if not await self._auth.validate_token_remotely(token):
-                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+            try:
+                if not await self._auth.validate_token_remotely(token):
+                    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+            except AuthException as e:
+                raise _auth_exception_to_http(e)
 
         return Depends(dependency)

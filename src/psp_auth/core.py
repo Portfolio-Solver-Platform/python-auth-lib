@@ -23,6 +23,7 @@ class Auth:
     config: AuthConfig
     logger: any
     _endpoints: OidcEndpoints
+    _public_endpoints: OidcEndpoints
 
     def __init__(self, config: AuthConfig):
         """
@@ -31,7 +32,10 @@ class Auth:
         """
         self.config = config
         self._endpoints = OidcEndpoints(
-            self.config.well_known_endpoint, self.config.request_timeout
+            self.config.internal_well_known_endpoint, self.config.request_timeout
+        )
+        self._public_endpoints = OidcEndpoints(
+            self.config.public_well_known_endpoint, self.config.request_timeout
         )
 
     def _resource(self) -> str:
@@ -91,7 +95,7 @@ class Auth:
                 data=data,
                 # auth=(self.config.client_id, self.config.client_secret),
                 # headers={"Content-Type": "application/x-www-form-urlencoded"},
-                headers={"Host": "http://keycloak.local/realms/psp"},
+                headers={"Host": self._public_endpoints.issuer()},
             )
             print(response)
             if response.status_code == 401:

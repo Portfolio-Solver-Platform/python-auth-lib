@@ -91,6 +91,7 @@ class Auth:
                 data=data,
                 # auth=(self.config.client_id, self.config.client_secret),
                 # headers={"Content-Type": "application/x-www-form-urlencoded"},
+                headers={"Host": "http://keycloak.local/realms/psp"},
             )
             print(response)
             if response.status_code == 401:

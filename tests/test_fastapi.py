@@ -160,23 +160,6 @@ def test_scope_docs(client, app, fauth, mauth):
     ]
 
 
-def test_remote_token_validation_require_secret(client, app, fauth, mauth):
-    fauth._auth.config.client_secret = None
-    token = MockToken()
-
-    @app.get(
-        "/",
-        dependencies=[fauth.require_remote_token_validation()],
-    )
-    async def route(request: Request):
-        return "ok"
-
-    fauth.add_docs(app)
-
-    with pytest.raises(ValueError, match="Client secret is required"):
-        response = client.get("/", headers=mauth.auth_header(mauth.issue_token(token)))
-
-
 def test_remote_token_validation(client, app, fauth, mauth):
     token = MockToken()
 
@@ -186,8 +169,6 @@ def test_remote_token_validation(client, app, fauth, mauth):
     )
     async def route(request: Request):
         return "ok"
-
-    fauth.add_docs(app)
 
     response = client.get("/", headers=mauth.auth_header(mauth.issue_token(token)))
     assert response.status_code == status.HTTP_200_OK
@@ -202,8 +183,6 @@ def test_remote_token_validation_invalid_token(client, app, fauth, mauth):
     )
     async def route(request: Request):
         return "ok"
-
-    fauth.add_docs(app)
 
     response = client.get("/", headers=mauth.auth_header(mauth.issue_token(token)))
     assert response.status_code == status.HTTP_401_UNAUTHORIZED

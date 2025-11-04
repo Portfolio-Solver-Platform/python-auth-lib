@@ -96,7 +96,7 @@ class Auth:
             "token_type_hint": "access_token",
         }
         timeout = httpx.Timeout(10.0, connect=5.0)
-        host = urlparse(self._public_endpoints.issuer()).netloc
+        host = urlparse(self._endpoints.issuer()).netloc
         async with httpx.AsyncClient(timeout=timeout) as client:
             return await client.post(
                 url,

@@ -3,6 +3,7 @@ from joserfc import jwt
 from joserfc.jwk import KeySet
 from joserfc.jwt import JWTClaimsRegistry
 from joserfc.errors import InvalidClaimError, ExpiredTokenError
+from urllib.parse import urlparse
 import requests
 import httpx
 import logging
@@ -95,13 +96,14 @@ class Auth:
             "token_type_hint": "access_token",
         }
         timeout = httpx.Timeout(10.0, connect=5.0)
+        host = urlparse(self._public_endpoints.issuer()).netloc
         async with httpx.AsyncClient(timeout=timeout) as client:
             return await client.post(
                 url,
                 data=data,
                 auth=(self.config.client_id, self.config.client_secret),
                 headers={
-                    "Host": "http://keycloak.local",
+                    "Host": host,
                 },
             )
 

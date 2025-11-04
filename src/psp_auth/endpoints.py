@@ -8,30 +8,22 @@ def _request_metadata(url: str, timeout: tuple[int, int]) -> dict:
 
 
 class OidcEndpoints:
-    _metadata_response: CachedGetter
-    token: str
-    introspection: str
-    userinfo: str
-    end_session: str
-    jwks_uri: str
-
-    def __init__(self, server_metadata_url: str, request_timeout: tuple[int, int]):
-        self._metadata_response = CachedGetter(
-            lambda: _request_metadata(server_metadata_url, request_timeout), 60 * 60
+    def __init__(self, well_known_url: str, request_timeout: tuple[int, int]):
+        self._well_known_response = CachedGetter(
+            lambda: _request_metadata(well_known_url, request_timeout), 60 * 60
         )
 
+    def _well_known(self) -> dict:
+        return self._well_known_response.get()
+
     def update(self):
-        self._metadata_response.update()
+        self._well_known_response.update()
 
     def certs(self) -> dict:
-        return self._metadata_response.get()["jwks_uri"]
+        return self._well_known()["jwks_uri"]
 
     def issuer(self) -> str:
-        return self._metadata_response.get()["issuer"]
+        return self._well_known()["issuer"]
 
-    def set_from_well_known(self, well_known: any):
-        self.token = well_known["token_endpoint"]
-        self.introspection = well_known["introspection_endpoint"]
-        self.userinfo = well_known["userinfo_endpoint"]
-        self.end_session = well_known["end_session_endpoint"]
-        self.jwks_uri = well_known["jwks_uri"]
+    def introspection(self) -> str:
+        return self._well_known()["introspection_endpoint"]

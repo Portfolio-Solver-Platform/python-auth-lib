@@ -3,6 +3,8 @@ from joserfc import jwt
 from joserfc.jwk import RSAKey
 import time
 from dataclasses import dataclass, field
+from unittest.mock import Mock
+from psp_auth.errors import AuthException
 
 DEFAULT_ISSUER = "https://auth.testing.psp.com/realms/psp"
 
@@ -153,8 +155,23 @@ class MockAuth:
             nonlocal issuer
             return issuer
 
+        async def mock_remote_token_validation(self, token: str):
+            try:
+                token = self.validate_token(token)
+                response = token.claims | {"active": True}
+            except AuthException:
+                response = {"active": False}
+
+            mock = Mock()
+            mock.status_code = 200
+            mock.json.return_value = response
+            return mock
+
         monkeypatch.setattr(Auth, "token_certs", mock_token_certs)
         monkeypatch.setattr(Auth, "token_issuer", mock_token_issuer)
+        monkeypatch.setattr(
+            Auth, "_make_introspection_request", mock_remote_token_validation
+        )
 
     def auth_header(self, token: str) -> dict:
         return {"Authorization": self.auth_header_value(token)}

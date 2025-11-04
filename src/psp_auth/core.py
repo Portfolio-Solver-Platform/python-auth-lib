@@ -2,11 +2,18 @@ from fastapi import HTTPException
 from joserfc import jwt
 from joserfc.jwk import KeySet
 from joserfc.jwt import JWTClaimsRegistry
+from joserfc.errors import InvalidClaimError, ExpiredTokenError
+from urllib.parse import urlparse
 import requests
+import httpx
+import logging
 
 from .config import AuthConfig
 from .endpoints import OidcEndpoints
 from .token import Token
+from .errors import AuthException, AuthExceptionType
+
+logger = logging.getLogger(__name__)
 
 
 class Auth:
@@ -49,7 +56,20 @@ class Auth:
             iss={"essential": True, "value": self.token_issuer()},
             aud={"essential": True, "value": self._resource()},
         )
-        claims_requests.validate(token.claims)
+
+        try:
+            claims_requests.validate(token.claims)
+        except InvalidClaimError as e:
+            if e.claim == "aud":
+                detail = f"The audience does not contain {self._resource()}"
+            elif e.claim == "iss":
+                detail = f"The issuer is not {self.token_issuer()}"
+            else:
+                raise e
+            raise AuthException(AuthExceptionType.FORBIDDEN, detail)
+        except ExpiredTokenError:
+            raise AuthException(AuthExceptionType.TOKEN_EXPIRED, "The token is expired")
+
         return Token(token, self._resource())
 
     def get_token(self, auth_header: str) -> str:
@@ -65,8 +85,47 @@ class Auth:
 
         return parts[1]
 
-    async def validate_token_remotely(self, token: Token):
+    async def _make_introspection_request(self, token: str) -> httpx.Response:
+        url = self._endpoints.introspection()
+        data = {
+            "token": token,
+            "token_type_hint": "access_token",
+        }
+        timeout = httpx.Timeout(10.0, connect=5.0)
+        host = urlparse(self._endpoints.issuer()).netloc
+        async with httpx.AsyncClient(timeout=timeout) as client:
+            return await client.post(
+                url,
+                data=data,
+                auth=(self.config.client_id, self.config.client_secret),
+                headers={
+                    "Host": host,
+                },
+            )
+
+    async def validate_token_remotely(self, token: str) -> bool:
         """
         Authorizes the token remotely to verify that it has not been revoked.
+        This is also called token introspection.
         """
-        raise NotImplementedError()
+        if self.config.client_secret is None:
+            raise ValueError(
+                "Client secret is required for remote token validation (introspection). "
+                "Please provide client_secret in the configuration."
+            )
+
+        response = await self._make_introspection_request(token)
+
+        if response.status_code == 401:
+            logger.error("Invalid client credentials")
+        elif response.status_code == 403:
+            logger.error("You don't have permission to validate/introspect tokens")
+
+        response.raise_for_status()
+        json = response.json()
+
+        if "active" not in json:
+            logger.warning("'active' was not in the introspection response")
+            return False
+
+        return json["active"] is True

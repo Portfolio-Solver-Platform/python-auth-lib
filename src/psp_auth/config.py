@@ -21,10 +21,7 @@ class AuthConfig:
 
     client_id: str
     client_secret: str = None
-    internal_well_known_endpoint: str = (
+    well_known_endpoint: str = (
         "http://user.psp.svc.cluster.local:8080/v1/.well-known/openid-configuration/internal"
-    )
-    public_well_known_endpoint: str = (
-        "http://user.psp.svc.cluster.local:8080/v1/.well-known/openid-configuration"
     )
     request_timeout: tuple[int, int] = (1, 5)

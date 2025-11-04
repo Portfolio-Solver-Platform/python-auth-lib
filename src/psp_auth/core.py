@@ -107,7 +107,7 @@ class Auth:
         url = self._endpoints.introspection()
         data = {
             "token": token,
-            "token_type_hint": "access_token",
+            # "token_type_hint": "access_token",
         }
         response = await self._make_introspection_request(url, data)
         print(response)

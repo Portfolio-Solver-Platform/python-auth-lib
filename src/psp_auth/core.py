@@ -89,7 +89,6 @@ class Auth:
         return parts[1]
 
     async def _make_introspection_request(self, token: str) -> httpx.Response:
-        print("REQUEST!!!")
         url = self._endpoints.introspection()
         data = {
             "token": token,
@@ -102,7 +101,7 @@ class Auth:
                 data=data,
                 auth=(self.config.client_id, self.config.client_secret),
                 headers={
-                    "Host": self._public_endpoints.issuer(),
+                    "Host": "http://keycloak.local",
                 },
             )
 
@@ -116,7 +115,6 @@ class Auth:
                 "Client secret is required for remote token validation (introspection). "
                 "Please provide client_secret in the configuration."
             )
-            return False
 
         response = await self._make_introspection_request(token)
 

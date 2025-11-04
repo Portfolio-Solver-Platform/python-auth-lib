@@ -133,7 +133,7 @@ class FastAPIAuth:
     def require_remote_token_validation(self) -> Depends:
         async def dependency(
             token: Annotated[str, Depends(self.unvalidated_token())],
-        ) -> Token:
+        ):
             try:
                 if not await self._auth.validate_token_remotely(token):
                     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)

@@ -88,16 +88,16 @@ class Auth:
             response = await client.post(
                 url,
                 data=data,
-                auth=(self.config.client_id, self.config.client_secret),
-                headers={"Content-Type": "application/x-www-form-urlencoded"},
+                # auth=(self.config.client_id, self.config.client_secret),
+                # headers={"Content-Type": "application/x-www-form-urlencoded"},
             )
-        if response.status_code == 401:
-            logger.error("Invalid client credentials")
-        elif response.status_code == 403:
-            logger.error("You don't have permission to validate/introspect tokens")
+            if response.status_code == 401:
+                logger.error("Invalid client credentials")
+            elif response.status_code == 403:
+                logger.error("You don't have permission to validate/introspect tokens")
 
-        response.raise_for_status()
-        return response.json()
+            response.raise_for_status()
+            return response.json()
 
     async def validate_token_remotely(self, token: str) -> bool:
         """
@@ -107,6 +107,8 @@ class Auth:
         url = self._endpoints.introspection()
         data = {
             "token": token,
+            "client_id": self.config.client_id,
+            "client_secret": self.config.client_secret,
             # "token_type_hint": "access_token",
         }
         response = await self._make_introspection_request(url, data)

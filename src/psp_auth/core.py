@@ -89,7 +89,7 @@ class Auth:
         url = self._endpoints.introspection()
         data = {
             "token": token,
-            "token_type_hint": "access_token",
+            "token_type_hint": "access_token",  # nosec B105
         }
         timeout = httpx.Timeout(10.0, connect=5.0)
         host = urlparse(self._endpoints.issuer()).netloc

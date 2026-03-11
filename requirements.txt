@@ -33,7 +33,7 @@ email-validator==2.3.0
     # via
     #   fastapi
     #   pydantic
-fastapi==0.120.4
+fastapi==0.135.1
     # via psp-auth (pyproject.toml)
 fastapi-cli==0.0.14
     # via fastapi
@@ -75,12 +75,20 @@ pydantic==2.12.3
     # via
     #   fastapi
     #   fastapi-cloud-cli
+    #   pydantic-extra-types
+    #   pydantic-settings
 pydantic-core==2.41.4
     # via pydantic
+pydantic-extra-types==2.11.0
+    # via fastapi
+pydantic-settings==2.13.1
+    # via fastapi
 pygments==2.19.2
     # via rich
 python-dotenv==1.2.1
-    # via uvicorn
+    # via
+    #   pydantic-settings
+    #   uvicorn
 python-multipart==0.0.20
     # via fastapi
 pyyaml==6.0.3
@@ -112,11 +120,15 @@ typing-extensions==4.15.0
     #   fastapi
     #   pydantic
     #   pydantic-core
+    #   pydantic-extra-types
     #   rich-toolkit
     #   typer
     #   typing-inspection
 typing-inspection==0.4.2
-    # via pydantic
+    # via
+    #   fastapi
+    #   pydantic
+    #   pydantic-settings
 urllib3==2.5.0
     # via sentry-sdk
 uvicorn==0.38.0

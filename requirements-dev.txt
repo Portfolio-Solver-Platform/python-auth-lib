@@ -4,24 +4,24 @@
 #
 #    pip-compile --extra=dev --output-file=requirements-dev.txt --strip-extras pyproject.toml
 #
-annotated-doc==0.0.3
+annotated-doc==0.0.4
     # via fastapi
 annotated-types==0.7.0
     # via pydantic
-anyio==4.11.0
+anyio==4.12.1
     # via
     #   httpx
     #   starlette
     #   watchfiles
-bandit==1.8.6
+bandit==1.9.4
     # via psp-auth (pyproject.toml)
 boolean-py==5.0
     # via license-expression
-cachecontrol==0.14.3
+cachecontrol==0.14.4
     # via
     #   cachecontrol
     #   pip-audit
-certifi==2025.10.5
+certifi==2025.11.12
     # via
     #   httpcore
     #   httpx
@@ -29,16 +29,16 @@ certifi==2025.10.5
     #   sentry-sdk
 cffi==2.0.0
     # via cryptography
-charset-normalizer==3.4.4
+charset-normalizer==3.4.6
     # via requests
-click==8.3.0
+click==8.3.1
     # via
     #   rich-toolkit
     #   typer
     #   uvicorn
-coverage==7.11.0
+coverage==7.13.5
     # via pytest-cov
-cryptography==46.0.3
+cryptography==46.0.5
     # via joserfc
 cyclonedx-python-lib==9.1.0
     # via pip-audit
@@ -52,11 +52,11 @@ email-validator==2.3.0
     #   pydantic
 fastapi==0.135.1
     # via psp-auth (pyproject.toml)
-fastapi-cli==0.0.14
+fastapi-cli==0.0.24
     # via fastapi
-fastapi-cloud-cli==0.3.1
+fastapi-cloud-cli==0.15.0
     # via fastapi-cli
-filelock==3.20.0
+filelock==3.25.2
     # via cachecontrol
 h11==0.16.0
     # via
@@ -83,7 +83,7 @@ itsdangerous==2.2.0
     # via psp-auth (pyproject.toml)
 jinja2==3.1.6
     # via fastapi
-joserfc==1.4.0
+joserfc==1.6.3
     # via psp-auth (pyproject.toml)
 license-expression==30.4.4
     # via cyclonedx-python-lib
@@ -95,7 +95,7 @@ mdurl==0.1.2
     # via markdown-it-py
 msgpack==1.1.2
     # via cachecontrol
-packageurl-python==0.17.5
+packageurl-python==0.17.6
     # via cyclonedx-python-lib
 packaging==25.0
     # via
@@ -104,11 +104,11 @@ packaging==25.0
     #   pytest
 pip-api==0.0.34
     # via pip-audit
-pip-audit==2.9.0
+pip-audit==2.10.0
     # via psp-auth (pyproject.toml)
 pip-requirements-parser==32.0.1
     # via pip-audit
-platformdirs==4.5.0
+platformdirs==4.9.4
     # via pip-audit
 pluggy==1.6.0
     # via
@@ -118,15 +118,15 @@ py-serializable==2.1.0
     # via cyclonedx-python-lib
 pycparser==2.23
     # via cffi
-pydantic==2.12.3
+pydantic==2.12.5
     # via
     #   fastapi
     #   fastapi-cloud-cli
     #   pydantic-extra-types
     #   pydantic-settings
-pydantic-core==2.41.4
+pydantic-core==2.42.0
     # via pydantic
-pydantic-extra-types==2.11.0
+pydantic-extra-types==2.11.1
     # via fastapi
 pydantic-settings==2.13.1
     # via fastapi
@@ -134,7 +134,7 @@ pygments==2.19.2
     # via
     #   pytest
     #   rich
-pyparsing==3.2.5
+pyparsing==3.3.2
     # via pip-requirements-parser
 pytest==9.0.2
     # via
@@ -145,11 +145,11 @@ pytest-asyncio==1.3.0
     # via psp-auth (pyproject.toml)
 pytest-cov==7.0.0
     # via psp-auth (pyproject.toml)
-python-dotenv==1.2.1
+python-dotenv==1.2.2
     # via
     #   pydantic-settings
     #   uvicorn
-python-multipart==0.0.20
+python-multipart==0.0.22
     # via fastapi
 pyyaml==6.0.3
     # via
@@ -159,21 +159,21 @@ requests==2.32.5
     # via
     #   cachecontrol
     #   pip-audit
-rich==14.2.0
+rich==14.3.3
     # via
     #   bandit
     #   pip-audit
     #   rich-toolkit
     #   typer
-rich-toolkit==0.15.1
+rich-toolkit==0.19.7
     # via
     #   fastapi-cli
     #   fastapi-cloud-cli
-rignore==0.7.4
+rignore==0.7.6
     # via fastapi-cloud-cli
-ruff==0.15.5
+ruff==0.15.7
     # via psp-auth (pyproject.toml)
-sentry-sdk==2.43.0
+sentry-sdk==2.55.0
     # via fastapi-cloud-cli
 shellingham==1.5.4
     # via typer
@@ -181,13 +181,13 @@ sniffio==1.3.1
     # via anyio
 sortedcontainers==2.4.0
     # via cyclonedx-python-lib
-starlette==0.49.3
+starlette==0.52.1
     # via fastapi
-stevedore==5.5.0
+stevedore==5.7.0
     # via bandit
 toml==0.10.2
     # via pip-audit
-typer==0.20.0
+typer==0.24.1
     # via
     #   fastapi-cli
     #   fastapi-cloud-cli
@@ -205,11 +205,11 @@ typing-inspection==0.4.2
     #   fastapi
     #   pydantic
     #   pydantic-settings
-urllib3==2.5.0
+urllib3==2.6.3
     # via
     #   requests
     #   sentry-sdk
-uvicorn==0.38.0
+uvicorn==0.42.0
     # via
     #   fastapi
     #   fastapi-cli

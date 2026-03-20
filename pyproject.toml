@@ -31,7 +31,7 @@ where = ["src"]
 include = ["psp_auth*"]
 exclude = ["tests*"]
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = [
     "pytest>=9,<10",
     "pytest-cov>=7,<8",

@@ -40,7 +40,7 @@ coverage==7.11.0
     # via pytest-cov
 cryptography==46.0.3
     # via joserfc
-cyclonedx-python-lib==9.1.0
+cyclonedx-python-lib==11.7.0
     # via pip-audit
 defusedxml==0.7.1
     # via py-serializable

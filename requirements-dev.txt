@@ -116,7 +116,7 @@ pluggy==1.6.0
     #   pytest-cov
 py-serializable==2.1.0
     # via cyclonedx-python-lib
-pycparser==2.23
+pycparser==3.0
     # via cffi
 pydantic==2.12.3
     # via

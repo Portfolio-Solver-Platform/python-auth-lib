@@ -21,7 +21,7 @@ cachecontrol==0.14.3
     # via
     #   cachecontrol
     #   pip-audit
-certifi==2025.10.5
+certifi==2026.2.25
     # via
     #   httpcore
     #   httpx
